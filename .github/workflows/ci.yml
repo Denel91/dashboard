@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Il token del workflow può solo leggere il codice (repo pubblico: meglio stretto)
+permissions:
+  contents: read
+
+# Se fai un nuovo push sulla stessa PR, il run vecchio si annulla
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      # Installa pnpm (versione da packageManager), Node (da .nvmrc)
+      # e lancia pnpm install --frozen-lockfile
+      - uses: pnpm/setup@v3
+        with:
+          cache: true
+          require-lockfile: true
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Controllo dei tipi
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
