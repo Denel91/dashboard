@@ -40,3 +40,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Editor JetBrains
+.idea/
+
+# Query salvate dallo SQL Editor di Supabase Studio in locale
+supabase/snippets/
