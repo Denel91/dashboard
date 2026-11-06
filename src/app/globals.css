@@ -1,26 +1,129 @@
 @import "tailwindcss";
 
+/* =====================================================================
+   Nucleo — design token (Fase 3, P5) · 6 novembre 2026
+   Tema chiaro e scuro (D15, NF-12): stessi nomi, valori diversi.
+   Il tema scuro segue l'impostazione del sistema.
+   Colori delle persone (D17): mai verde, arancione, rosso o viola.
+   Ogni coppia testo/sfondo è verificata WCAG AA (≥ 4,5:1 per il testo,
+   ≥ 3:1 per le barre del budget): vedi Fase 3, sezione 7.
+   ===================================================================== */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light dark;            /* input data, scrollbar e form nel tema giusto */
+
+  /* Superfici e testo */
+  --sfondo: #f2f2f7;
+  --superficie: #ffffff;               /* card, fogli dal basso */
+  --superficie-2: #e9e9ef;             /* binario delle barre, campi nei fogli */
+  --testo: #000000;
+  --testo-secondario: #636366;         /* 5,4:1 su sfondo · 6,0:1 su superficie */
+  --separatore: #d8d8de;
+
+  /* Accento: ＋, Salva, link */
+  --accento: #5b4beb;                  /* 5,8:1 con testo bianco */
+  --su-accento: #ffffff;
+  --accento-tenue: #eceafd;            /* pulsanti secondari: accento sopra 4,9:1 */
+
+  /* Persone (D17): Daniele blu, Simona rosa acceso */
+  --persona-a: #1d63d8;                /* Daniele, blu · 5,5:1 su superficie */
+  --persona-a-tenue: #e6eefb;
+  --persona-b: #cc1c78;                /* Simona, rosa acceso · 5,2:1 su superficie · 4,7:1 su sfondo */
+  --persona-b-tenue: #fdebf4;          /* card del saldo quando deve Simona */
+  --su-persona: #ffffff;               /* iniziale dentro il cerchio */
+
+  /* Stati del budget: barre (≥ 3:1) e testi (≥ 4,5:1) */
+  --budget-ok: #248a3d;                /* sotto l'80% */
+  --budget-attenzione: #c46a00;        /* dall'80% */
+  --budget-superato: #d70015;          /* oltre il 100% */
+  --budget-ok-testo: #1e7b34;
+  --budget-attenzione-testo: #a35200;
+  --budget-superato-testo: #c4150c;
+
+  /* Azioni distruttive: Elimina, Annulla il rimborso, Cancella account */
+  --pericolo: #d11a10;                 /* 5,4:1 con testo bianco */
+  --su-pericolo: #ffffff;
+
+
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+body {
+  background: var(--sfondo);
+  color: var(--testo);
+  font-family: var(--font-sans), system-ui, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --sfondo: #000000;
+    --superficie: #1c1c1e;
+    --superficie-2: #2c2c2e;
+    --testo: #ffffff;
+    --testo-secondario: #aeaeb2;       /* 9,5:1 su sfondo · 7,7:1 su superficie */
+    --separatore: #38383a;
+
+    --accento: #8a80fa;                /* 6,6:1 con testo nero */
+    --su-accento: #000000;
+    --accento-tenue: #221e44;
+
+    --persona-a: #6ea8fe;              /* 7,1:1 su superficie */
+    --persona-a-tenue: #15284a;
+    --persona-b: #ff6eb4;              /* 6,6:1 su superficie */
+    --persona-b-tenue: #3e1229;
+    --su-persona: #000000;
+
+    --budget-ok: #30d158;
+    --budget-attenzione: #ff9f0a;
+    --budget-superato: #ff453a;
+    --budget-ok-testo: #30d158;
+    --budget-attenzione-testo: #ffb340;
+    --budget-superato-testo: #ff6961;
+
+    --pericolo: #ff453a;               /* 6,2:1 con testo nero */
+    --su-pericolo: #000000;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Le classi Tailwind puntano alle variabili: bg-superficie, text-persona-b,
+   bg-budget-attenzione… restano identiche nei due temi. */
+@theme inline {
+  --color-sfondo: var(--sfondo);
+  --color-superficie: var(--superficie);
+  --color-superficie-2: var(--superficie-2);
+  --color-testo: var(--testo);
+  --color-testo-secondario: var(--testo-secondario);
+  --color-separatore: var(--separatore);
+
+  --color-accento: var(--accento);
+  --color-su-accento: var(--su-accento);
+  --color-accento-tenue: var(--accento-tenue);
+
+  --color-persona-a: var(--persona-a);
+  --color-persona-a-tenue: var(--persona-a-tenue);
+  --color-persona-b: var(--persona-b);
+  --color-persona-b-tenue: var(--persona-b-tenue);
+  --color-su-persona: var(--su-persona);
+
+  --color-budget-ok: var(--budget-ok);
+  --color-budget-attenzione: var(--budget-attenzione);
+  --color-budget-superato: var(--budget-superato);
+  --color-budget-ok-testo: var(--budget-ok-testo);
+  --color-budget-attenzione-testo: var(--budget-attenzione-testo);
+  --color-budget-superato-testo: var(--budget-superato-testo);
+
+  --color-pericolo: var(--pericolo);
+  --color-su-pericolo: var(--su-pericolo);
+
+  /* Forme */
+  --radius-card: 1.375rem;             /* 22px: card e liste */
+  --radius-foglio: 2.375rem;           /* 38px: fogli dal basso */
+  --radius-campo: 0.875rem;            /* 14px: campi di testo */
+
+  /* Font dello scaffold (create-next-app): lasciare come sono */
+  /* noinspection CssUnresolvedCustomProperty */
+  --font-sans: var(--font-geist-sans);
+  /* noinspection CssUnresolvedCustomProperty */
+  --font-mono: var(--font-geist-mono);
 }
+
+
