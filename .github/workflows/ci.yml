@@ -37,3 +37,16 @@ jobs:
 
       - name: Test
         run: pnpm test
+
+  db:
+    name: db
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/setup@v3          # installa anche la Supabase CLI (devDependency)
+        with:
+          cache: true
+          require-lockfile: true
+      - run: pnpm exec supabase db start   # solo Postgres, con le migrazioni applicate
+      - run: pnpm exec supabase test db    # i test pgTAP di supabase/tests/
