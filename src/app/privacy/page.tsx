@@ -6,7 +6,7 @@ import type { ReactNode } from 'react';
 // se cambi uno dei due, aggiorna anche l'altro.
 
 export const metadata: Metadata = {
-  title: 'Privacy · Dashboard di coppia',
+  title: 'Privacy · Nucleo',
   description: 'Quali dati raccoglie l’app, dove li conserva e chi può vederli.',
 };
 
@@ -19,7 +19,7 @@ export default function PaginaPrivacy() {
       <p className="mt-1 text-sm text-testo-secondario">Ultimo aggiornamento: 7 novembre 2026</p>
 
       <p className="mt-6">
-        <strong>Dashboard di coppia</strong> è una web app privata e non commerciale, usata da due
+        <strong>Nucleo</strong> è una web app privata e non commerciale, usata da due
         persone per registrare le spese comuni e sapere chi deve quanto all’altra. Questa pagina
         spiega quali dati raccoglie, dove li conserva e chi può vederli.
       </p>

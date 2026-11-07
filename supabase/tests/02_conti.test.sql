@@ -44,8 +44,8 @@ set local role authenticated;
 set local request.jwt.claims = '{"sub":"aaaaaaaa-0000-0000-0000-000000000000","role":"authenticated"}';
 
 -- Categoria e budget: 400,00 € da novembre, 500,00 € da dicembre
-insert into public.categorie (id, nucleo_id, nome) values
-  ('ca000000-0000-0000-0000-000000000000', '11111111-0000-0000-0000-000000000000', 'Spesa');
+insert into public.categorie (id, nucleo_id, nome, icona) values
+  ('ca000000-0000-0000-0000-000000000000', '11111111-0000-0000-0000-000000000000', 'Spesa', 'shopping-cart');
 
 insert into public.budget_categorie (nucleo_id, categoria_id, importo_centesimi, valido_dal) values
   ('11111111-0000-0000-0000-000000000000', 'ca000000-0000-0000-0000-000000000000', 40000, '2026-11-01'),
