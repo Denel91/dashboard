@@ -42,6 +42,9 @@ jobs:
     name: db
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:                                   # valori finti: ai test non serve Google
+      SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID: ci-non-usato
+      SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET: ci-non-usato
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/setup@v3          # installa anche la Supabase CLI (devDependency)
