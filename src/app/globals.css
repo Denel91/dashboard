@@ -1,26 +1,39 @@
 @import "tailwindcss";
 
 /* =====================================================================
-   Nucleo — design token (Fase 3, P5) · 6 novembre 2026
+   Nucleo — design token (Fase 3, P5) · v2 · 7 novembre 2026
+   Riferimenti vincolanti (D18): wireframe v2.2 per struttura e testi,
+   linee guida di iOS 27 (Liquid Glass) per aspetto e comportamento.
    Tema chiaro e scuro (D15, NF-12): stessi nomi, valori diversi.
    Il tema scuro segue l'impostazione del sistema.
    Colori delle persone (D17): mai verde, arancione, rosso o viola.
    Ogni coppia testo/sfondo è verificata WCAG AA (≥ 4,5:1 per il testo,
-   ≥ 3:1 per le barre del budget): vedi Fase 3, sezione 7.
+   ≥ 3:1 per le barre del budget): vedi Fase 3, sezioni 7 e 7.1.
    ===================================================================== */
 
 :root {
   color-scheme: light dark;            /* input data, scrollbar e form nel tema giusto */
 
-  /* Superfici e testo */
+  /* Superfici e testo (livello del contenuto: sempre opachi) */
   --sfondo: #f2f2f7;
-  --superficie: #ffffff;               /* card, fogli dal basso */
-  --superficie-2: #e9e9ef;             /* binario delle barre, campi nei fogli */
+  --superficie: #ffffff;               /* card, liste, fogli dal basso */
+  --superficie-2: #e9e9ef;             /* binario delle barre, campi nei fogli, controlli segmentati */
   --testo: #000000;
   --testo-secondario: #636366;         /* 5,4:1 su sfondo · 6,0:1 su superficie */
   --separatore: #d8d8de;
 
-  /* Accento: ＋, Salva, link */
+  /* Vetro (livello della navigazione, D18): solo barra in basso.
+     Sul vetro solo --testo (≥ 10,5:1 anche con contenuto nero dietro);
+     la voce attiva ha la pillola opaca --accento-tenue con --accento. */
+  --vetro: rgb(255 255 255 / 0.72);
+  --vetro-bordo: rgb(0 0 0 / 0.06);
+  --vetro-sfocatura: 24px;
+
+  /* Avvisi della pagina (F2, F7, tavola 20): scuri in entrambi i temi */
+  --avviso: #1c1c1e;                   /* testo bianco 17,0:1 */
+  --su-avviso: #ffffff;
+
+  /* Accento: ＋, Salva, link, voce attiva della barra, interruttori accesi */
   --accento: #5b4beb;                  /* 5,8:1 con testo bianco */
   --su-accento: #ffffff;
   --accento-tenue: #eceafd;            /* pulsanti secondari: accento sopra 4,9:1 */
@@ -44,13 +57,8 @@
   --pericolo: #d11a10;                 /* 5,4:1 con testo bianco */
   --su-pericolo: #ffffff;
 
-
-}
-
-body {
-  background: var(--sfondo);
-  color: var(--testo);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  /* Velo dietro i fogli dal basso */
+  --velo: rgb(0 0 0 / 0.3);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -62,9 +70,15 @@ body {
     --testo-secondario: #aeaeb2;       /* 9,5:1 su sfondo · 7,7:1 su superficie */
     --separatore: #38383a;
 
+    --vetro: rgb(37 37 40 / 0.72);     /* testo bianco ≥ 6,1:1 anche con contenuto bianco dietro */
+    --vetro-bordo: rgb(255 255 255 / 0.1);
+
+    --avviso: #3a3a3c;                 /* testo bianco 11,4:1 */
+    --su-avviso: #ffffff;
+
     --accento: #8a80fa;                /* 6,6:1 con testo nero */
     --su-accento: #000000;
-    --accento-tenue: #221e44;
+    --accento-tenue: #221e44;          /* accento sopra 4,9:1 */
 
     --persona-a: #6ea8fe;              /* 7,1:1 su superficie */
     --persona-a-tenue: #15284a;
@@ -81,6 +95,23 @@ body {
 
     --pericolo: #ff453a;               /* 6,2:1 con testo nero */
     --su-pericolo: #000000;
+
+    --velo: rgb(0 0 0 / 0.5);
+  }
+}
+
+/* Contrasto aumentato (Impostazioni iOS → Accessibilità) e browser senza
+   backdrop-filter: il vetro diventa opaco. Safari non espone
+   prefers-reduced-transparency, quindi si usa prefers-contrast. */
+@media (prefers-contrast: more) {
+  :root {
+    --vetro: var(--superficie);
+    --vetro-bordo: var(--separatore);
+  }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root {
+    --vetro: var(--superficie);
   }
 }
 
@@ -93,6 +124,12 @@ body {
   --color-testo: var(--testo);
   --color-testo-secondario: var(--testo-secondario);
   --color-separatore: var(--separatore);
+
+  --color-vetro: var(--vetro);
+  --color-vetro-bordo: var(--vetro-bordo);
+  --color-avviso: var(--avviso);
+  --color-su-avviso: var(--su-avviso);
+  --color-velo: var(--velo);
 
   --color-accento: var(--accento);
   --color-su-accento: var(--su-accento);
@@ -115,15 +152,74 @@ body {
   --color-su-pericolo: var(--su-pericolo);
 
   /* Forme */
-  --radius-card: 1.375rem;             /* 22px: card e liste */
+  --radius-card: 1.375rem;             /* 22px: card e liste raggruppate */
   --radius-foglio: 2.375rem;           /* 38px: fogli dal basso */
   --radius-campo: 0.875rem;            /* 14px: campi di testo */
+  --radius-capsula: 9999px;            /* barra in basso, ＋, pulsanti, chip, controlli segmentati */
 
-  /* Font dello scaffold (create-next-app): lasciare come sono */
-  /* noinspection CssUnresolvedCustomProperty */
-  --font-sans: var(--font-geist-sans);
-  /* noinspection CssUnresolvedCustomProperty */
-  --font-mono: var(--font-geist-mono);
+  /* Font di sistema (D18): su iPhone e Mac è San Francisco.
+     Sostituisce Geist dello scaffold (next/font tolto da layout.tsx). */
+  --font-sans: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Scala tipografica di iOS (dimensione predefinita, in pt = px CSS).
+     Classi: text-titolo-grande, text-corpo, text-nota… */
+  --text-titolo-grande: 2.125rem;      /* 34 · titoli delle schermate (Novembre, Spese, Saldo) */
+  --text-titolo-grande--line-height: 2.5625rem;
+  --text-titolo-1: 1.75rem;            /* 28 */
+  --text-titolo-1--line-height: 2.125rem;
+  --text-titolo-2: 1.375rem;           /* 22 · titoli dei fogli */
+  --text-titolo-2--line-height: 1.75rem;
+  --text-titolo-3: 1.25rem;            /* 20 · Budget del mese, Rimborsi */
+  --text-titolo-3--line-height: 1.5625rem;
+  --text-intestazione: 1.0625rem;      /* 17 semibold · voci delle liste in evidenza */
+  --text-intestazione--line-height: 1.375rem;
+  --text-intestazione--font-weight: 600;
+  --text-corpo: 1.0625rem;             /* 17 · testo normale, campi */
+  --text-corpo--line-height: 1.375rem;
+  --text-richiamo: 1rem;               /* 16 */
+  --text-richiamo--line-height: 1.3125rem;
+  --text-sottotitolo: 0.9375rem;       /* 15 · sottotitoli delle righe */
+  --text-sottotitolo--line-height: 1.25rem;
+  --text-nota: 0.8125rem;              /* 13 · note sotto i campi, intestazioni dei gruppi */
+  --text-nota--line-height: 1.125rem;
+  --text-didascalia: 0.75rem;          /* 12 */
+  --text-didascalia--line-height: 1rem;
+  --text-didascalia-2: 0.6875rem;      /* 11 · etichette della barra in basso */
+  --text-didascalia-2--line-height: 0.8125rem;
+  --text-importo: 3rem;                /* 48 · saldo e importo in Nuova spesa */
+  --text-importo--line-height: 1.1;
+  --text-importo--font-weight: 700;
 }
 
+body {
+  background: var(--sfondo);
+  color: var(--testo);
+  font-family: var(--font-sans);
+  font-size: var(--text-corpo);
+  line-height: var(--text-corpo--line-height);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;  /* il feedback al tocco lo danno i componenti */
+}
 
+/* Importi in colonna: cifre a larghezza fissa */
+.importo {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Barra in basso e altri elementi di vetro */
+.vetro {
+  background: var(--vetro);
+  -webkit-backdrop-filter: blur(var(--vetro-sfocatura)) saturate(180%);
+  backdrop-filter: blur(var(--vetro-sfocatura)) saturate(180%);
+  border: 1px solid var(--vetro-bordo);
+}
+
+/* Movimento ridotto: niente molle né scorrimenti, solo dissolvenze brevi */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 120ms !important;
+    scroll-behavior: auto !important;
+  }
+}

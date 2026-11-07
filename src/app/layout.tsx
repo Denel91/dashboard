@@ -1,29 +1,27 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import type { Metadata, Viewport } from 'next';
+import './globals.css';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+// Font di sistema (San Francisco su iPhone e Mac): lo imposta globals.css (D18).
 
 export const metadata: Metadata = {
-  title: "Dashboard finanziaria",
-  description: "Dashboard finanziaria per la gestione delle spese e delle entrate personali.",
+  title: 'Nucleo',
+  description: 'Le spese di casa, divise in due. Sempre chiaro chi deve cosa.',
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export const viewport: Viewport = {
+  // Pagina fino ai bordi: tacca, isola dinamica e barra Home si gestiscono
+  // con env(safe-area-inset-*) (linee guida iOS 27, sezione 5)
+  viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f2f2f7' },
+    { media: '(prefers-color-scheme: dark)', color: '#000000' },
+  ],
+};
+
+export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    <html
-      lang="it"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="it" className="h-full">
+      <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );
 }

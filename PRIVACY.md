@@ -2,7 +2,7 @@
 
 *Ultimo aggiornamento: 7 novembre 2026*
 
-**Dashboard di coppia** (`dashboard-denel.vercel.app`) è una web app privata e non commerciale, usata da due persone per registrare le spese comuni e sapere chi deve quanto all'altra. Questa pagina spiega quali dati raccoglie, dove li conserva e chi può vederli.
+**Nucleo** (`dashboard-denel.vercel.app`) è una web app privata e non commerciale, usata da due persone per registrare le spese comuni e sapere chi deve quanto all'altra. Questa pagina spiega quali dati raccoglie, dove li conserva e chi può vederli.
 
 ## Chi gestisce i dati
 

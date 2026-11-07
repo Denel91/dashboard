@@ -1,33 +1,35 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { Suspense } from 'react';
 import { BottoneGoogle, BottoneGoogleInAttesa } from './bottone-google';
 
 export const metadata: Metadata = {
-  title: 'Accesso · Dashboard di coppia',
+  title: 'Accesso · Nucleo',
 };
 
-// Schermata 1 dei wireframe (US-01): nome dell'app, una riga, un solo pulsante.
+// Tavola 01 dei wireframe v2.2 (US-01, D18): icona, nome, due righe,
+// un solo pulsante nella metà bassa dello schermo e la nota sotto.
 export default function PaginaAccesso() {
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-between px-6 py-12">
-      <div className="mt-16">
-        <h1 className="text-4xl font-bold">Dashboard di coppia</h1>
-        <p className="mt-3 text-lg text-testo-secondario">
-          Le vostre spese comuni, e chi deve quanto a chi.
+    <main className="flex min-h-dvh flex-col bg-linear-to-b from-accento-tenue/60 via-sfondo to-persona-b-tenue/50 px-4 pt-[max(3rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center">
+        {/* L'icona è decorativa: il nome dell'app è subito sotto */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/icon.svg" alt="" width={72} height={72} className="size-18 rounded-[1.1rem] shadow-lg shadow-accento/30" />
+        <h1 className="mt-6 text-titolo-grande font-bold">Nucleo</h1>
+        <p className="mt-2 text-corpo text-testo-secondario">
+          Le spese di casa, divise in due.
+          <br />
+          Sempre chiaro chi deve cosa.
         </p>
       </div>
 
-      {/* Il pulsante sta nella metà bassa dello schermo (uso a una mano) */}
-      <div>
+      <div className="mx-auto w-full max-w-md">
         {/* useSearchParams richiede un Suspense con cacheComponents attivo */}
         <Suspense fallback={<BottoneGoogleInAttesa />}>
           <BottoneGoogle />
         </Suspense>
-        <p className="mt-6 text-center text-sm text-testo-secondario">
-          <Link href="/privacy" className="underline">
-            Privacy
-          </Link>
+        <p className="mt-3 text-center text-nota text-testo-secondario">
+          Niente password: usi il tuo account Google.
         </p>
       </div>
     </main>
