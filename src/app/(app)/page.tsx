@@ -1,14 +1,16 @@
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { esci } from '@/app/actions/accesso';
-import { createClient } from '@/lib/supabase/server';
+import { Card, Iniziale } from '@/components/ui';
+import { leggiNucleoCorrente } from '@/lib/nucleo/corrente';
 
-// Home PROVVISORIA (US-01): serve solo a provare l'accesso.
-// Con US-02 diventa "crea il nucleo / entra nel nucleo", poi la Home vera
-// con saldo e mese (Sprint 4 e 7).
+// Home PROVVISORIA (US-01, US-02): mostra il nucleo e i suoi membri, il link
+// per invitare finché si è da soli e "Esci". Diventa la Home vera con il
+// saldo (US-30, Sprint 4) e la dashboard (US-40, Sprint 7).
 export default function Home() {
   return (
-    <main className="max-w-md py-6">
+    <main className="flex max-w-md flex-col gap-5 py-2">
       {/* Legge la sessione (cookie): con cacheComponents va dentro Suspense */}
       <Suspense fallback={<p className="text-testo-secondario">Caricamento…</p>}>
         <Benvenuto />
@@ -18,25 +20,40 @@ export default function Home() {
 }
 
 async function Benvenuto() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect('/accesso');
-
-  const nome = typeof user.user_metadata.full_name === 'string' ? user.user_metadata.full_name : '';
+  const nucleo = await leggiNucleoCorrente();
+  if (!nucleo) redirect('/benvenuto');
 
   return (
     <>
-      <h1 className="text-3xl font-bold">Ciao{nome ? ` ${nome}` : ''}!</h1>
-      <p className="mt-2 text-testo-secondario">
-        Sei entrato con l’account Google <strong className="text-testo">{user.email}</strong>.
+      <header>
+        <h1 className="text-titolo-grande font-bold">Ciao {nucleo.io.nome}!</h1>
+        <p className="text-sottotitolo text-testo-secondario">{nucleo.nome}</p>
+      </header>
+
+      <Card className="flex flex-col gap-3">
+        <p className="text-nota text-testo-secondario uppercase">Nel nucleo</p>
+        {nucleo.membri.map((m) => (
+          <p key={m.id} className="flex items-center gap-3 text-corpo">
+            <Iniziale nome={m.nome} persona={m.persona} decorativa />
+            {m.nome}
+            {m.sonoIo && <span className="text-testo-secondario">(tu)</span>}
+          </p>
+        ))}
+        {!nucleo.completo && (
+          <Link href="/benvenuto/invita" className="text-corpo text-accento">
+            Invita l’altra persona
+          </Link>
+        )}
+      </Card>
+
+      <p className="text-sottotitolo text-testo-secondario">
+        Sei entrato con l’account Google <strong className="text-testo">{nucleo.email}</strong>.
       </p>
-      <form action={esci} className="mt-10">
+
+      <form action={esci}>
         <button
           type="submit"
-          className="w-full rounded-campo bg-superficie px-6 py-4 font-semibold text-testo"
+          className="h-12.5 w-full rounded-capsula bg-superficie text-intestazione text-pericolo outline-hidden focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-accento"
         >
           Esci
         </button>

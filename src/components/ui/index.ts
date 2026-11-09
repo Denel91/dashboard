@@ -19,3 +19,4 @@ export { GruppoRighe, Riga } from './gruppo-righe';
 export { Iniziale } from './iniziale';
 export { Foglio, ApriFoglio } from './foglio';
 export { RegioneAvvisi, mostraAvviso, chiudiAvviso, DURATA_AVVISO_MS } from './avviso';
+export { CampoTesto, Modulo } from './campo';

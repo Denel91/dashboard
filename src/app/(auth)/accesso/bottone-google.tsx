@@ -24,7 +24,12 @@ function LogoGoogle() {
   );
 }
 
-export function BottoneGoogle() {
+/**
+ * `destinazione`: dove tornare dopo Google. Se manca, si usa ?next= della
+ * pagina (accesso) e altrimenti la Home. La pagina d'invito la passa così
+ * si torna all'invito (US-02).
+ */
+export function BottoneGoogle({ destinazione }: { destinazione?: string } = {}) {
   const params = useSearchParams();
   const [inCorso, setInCorso] = useState(false);
   const [errore, setErrore] = useState<string | null>(
@@ -38,7 +43,7 @@ export function BottoneGoogle() {
     // Dopo Google si torna su /auth/callback dello stesso sito (locale,
     // preview o produzione), che poi apre la pagina richiesta.
     const ritorno = new URL('/auth/callback', window.location.origin);
-    ritorno.searchParams.set('next', destinazioneSicura(params.get('next')));
+    ritorno.searchParams.set('next', destinazioneSicura(destinazione ?? params.get('next')));
 
     const { error } = await createClient().auth.signInWithOAuth({
       provider: 'google',
