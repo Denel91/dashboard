@@ -31,7 +31,7 @@ export function GruppoRighe({
       )}
       {/* Il separatore sta sopra ogni riga tranne la prima e parte dal testo,
           non dal bordo: per questo è sul blocco del testo, non sulla riga. */}
-      <ul className="overflow-hidden rounded-card bg-superficie [&>li:first-child_[data-riga-testo]]:border-t-0">
+      <ul className="vetro-card overflow-hidden rounded-card [&>li:first-child_[data-riga-testo]]:border-t-0">
         {children}
       </ul>
     </section>

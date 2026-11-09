@@ -22,8 +22,9 @@ const BASE =
   'data-disabled:cursor-default data-disabled:opacity-40 ' +
   'data-pending:cursor-wait data-pending:opacity-70';
 
-// Capsula piena, alta 50 px, larga quanto il contenuto meno i margini
-const PIENO = 'h-12.5 w-full rounded-capsula px-6 text-intestazione';
+// Capsula piena, alta 50 px: sul telefono larga quanto il contenuto meno i
+// margini; da 768 px larga quanto il testo, in basso a destra (sezione 9.4)
+const PIENO = 'h-12.5 w-full rounded-capsula px-6 text-intestazione md:w-auto md:min-w-32 md:px-8';
 
 function unisci(...classi: (string | undefined)[]) {
   return classi.filter(Boolean).join(' ');

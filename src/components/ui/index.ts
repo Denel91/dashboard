@@ -9,7 +9,11 @@ export {
   PulsanteDistruttivo,
 } from './pulsante';
 export { PulsanteNuovaSpesa } from './pulsante-nuova-spesa';
-export { BarraInBasso, SPAZIO_BARRA_IN_BASSO } from './barra-in-basso';
+export { BarraInBasso } from './barra-in-basso';
+export { BarraLaterale, PAGINE_ALTRO } from './barra-laterale';
+export { SPAZIO_BARRA_IN_BASSO, SPAZIO_BARRA_LATERALE } from './spazi';
+export { ScorciatoiaNuovaSpesa } from './scorciatoia-nuova-spesa';
+export { SfondoSfumato } from './sfondo-sfumato';
 export { Card } from './card';
 export { GruppoRighe, Riga } from './gruppo-righe';
 export { Iniziale } from './iniziale';

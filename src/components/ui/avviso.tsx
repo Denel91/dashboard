@@ -50,15 +50,16 @@ export function RegioneAvvisi() {
       aria-label="Avvisi"
       className={
         'pointer-events-none fixed inset-x-0 z-50 flex flex-col items-center gap-2 px-4 outline-hidden ' +
-        // Sopra la barra in basso: 60 px di barra + 12 di margine + 16 di respiro
-        'bottom-[calc(5.5rem+env(safe-area-inset-bottom))]'
+        // Telefono: sopra la barra in basso (60 px di barra + 12 di margine + 16 di respiro).
+        // Da 768 px: in basso al centro dell'area del contenuto, accanto alla barra laterale (sezione 9.4).
+        'bottom-[calc(5.5rem+env(safe-area-inset-bottom))] md:bottom-6 md:left-22 lg:left-[292px]'
       }
     >
       {({ toast }) => (
         <Toast
           toast={toast}
           className={
-            'pointer-events-auto flex w-full max-w-md items-center gap-1 rounded-card bg-avviso py-1 pr-1 pl-4 ' +
+            'pointer-events-auto flex w-full max-w-md items-center md:max-w-[420px] gap-1 rounded-card bg-avviso py-1 pr-1 pl-4 ' +
             'text-su-avviso shadow-lg outline-hidden transition duration-200 ease-out ' +
             'starting:translate-y-2 starting:opacity-0 motion-reduce:starting:translate-y-0 ' +
             'data-focus-visible:outline-2 data-focus-visible:outline-solid data-focus-visible:outline-offset-2 data-focus-visible:outline-accento'
