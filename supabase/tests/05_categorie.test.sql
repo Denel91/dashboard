@@ -39,7 +39,8 @@ select throws_ok(
 );
 
 select is(
-  (select colore from public.categorie where nome = 'Spesa'),
+  (select colore from public.categorie
+    where nome = 'Spesa' and nucleo_id = '00000000-0000-0000-0000-0000000000c1'),
   '#8b8b91',
   'il colore predefinito è il grigio della tavolozza'
 );
