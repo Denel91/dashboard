@@ -329,6 +329,9 @@ isOneToOne: false
                            },
 "membro_corrente":
 { Args: { "p_nucleo_id": string }; Returns: string
+                           },
+"ping":
+{ Args: never; Returns: boolean
                            }
           }
           Enums: {
