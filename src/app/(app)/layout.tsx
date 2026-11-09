@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import {
   BarraInBasso,
@@ -9,7 +10,7 @@ import {
   SPAZIO_BARRA_IN_BASSO,
   SPAZIO_BARRA_LATERALE,
 } from '@/components/ui';
-import { createClient } from '@/lib/supabase/server';
+import { leggiNucleoCorrente } from '@/lib/nucleo/corrente';
 
 // Layout delle pagine dell'app (T-23, linee guida sezioni 9.1, 9.2 e 9.8):
 // - telefono (< 768 px): barra in basso e ＋, una colonna con margini di 16 px;
@@ -17,18 +18,15 @@ import { createClient } from '@/lib/supabase/server';
 // - lg (da 1024 px): barra laterale estesa e galleggiante, sfondo sfumato,
 //   area del contenuto larga al massimo 1200 px, centrata.
 // Un solo albero di componenti: decide solo la larghezza (sezione 9.1).
+// Chi non fa ancora parte di un nucleo va a "Crea il vostro nucleo" (US-02).
 export default function LayoutApp({ children }: LayoutProps<'/'>) {
   return (
     <>
       <SfondoSfumato />
-      <BarraLaterale
-        profilo={
-          // Legge la sessione (cookie): con cacheComponents va dentro Suspense
-          <Suspense fallback={<div className="h-14" />}>
-            <ProfiloBarra />
-          </Suspense>
-        }
-      />
+      {/* Legge la sessione e il nucleo: con cacheComponents va dentro Suspense */}
+      <Suspense fallback={<BarraLaterale />}>
+        <BarraLateraleDelNucleo />
+      </Suspense>
       <div className={`flex-1 ${SPAZIO_BARRA_LATERALE}`}>
         <div
           className={
@@ -46,25 +44,23 @@ export default function LayoutApp({ children }: LayoutProps<'/'>) {
   );
 }
 
-/** Profilo in fondo alla barra estesa: iniziale, nome ed email dell'account Google. */
-async function ProfiloBarra() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
+/** Barra laterale con il nome del nucleo e, in fondo, il proprio profilo (iniziale, nome, account Google). */
+async function BarraLateraleDelNucleo() {
+  const nucleo = await leggiNucleoCorrente();
+  if (!nucleo) redirect('/benvenuto');
 
-  const nome = typeof user.user_metadata.full_name === 'string' ? user.user_metadata.full_name : (user.email ?? '');
-
-  // Il colore della persona (a/b) dipende dall'ordine di ingresso nel nucleo:
-  // finché il nucleo non c'è (US-02) si usa quello della prima persona.
   return (
-    <div className="flex items-center gap-2 rounded-capsula bg-superficie/60 p-2">
-      <Iniziale nome={nome} persona="a" decorativa />
-      <div className="min-w-0">
-        <p className="truncate text-sottotitolo">{nome}</p>
-        <p className="truncate text-didascalia">{user.email}</p>
-      </div>
-    </div>
+    <BarraLaterale
+      nomeNucleo={nucleo.nome}
+      profilo={
+        <div className="flex items-center gap-2 rounded-capsula bg-superficie/60 p-2">
+          <Iniziale nome={nucleo.io.nome} persona={nucleo.io.persona} decorativa />
+          <div className="min-w-0">
+            <p className="truncate text-sottotitolo">{nucleo.io.nome}</p>
+            <p className="truncate text-didascalia">{nucleo.email}</p>
+          </div>
+        </div>
+      }
+    />
   );
 }
