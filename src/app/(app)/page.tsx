@@ -8,7 +8,7 @@ import { createClient } from '@/lib/supabase/server';
 // con saldo e mese (Sprint 4 e 7).
 export default function Home() {
   return (
-    <main className="mx-auto max-w-md px-6 py-12">
+    <main className="max-w-md py-6">
       {/* Legge la sessione (cookie): con cacheComponents va dentro Suspense */}
       <Suspense fallback={<p className="text-testo-secondario">Caricamento…</p>}>
         <Benvenuto />

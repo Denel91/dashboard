@@ -215,6 +215,37 @@ body {
   border: 1px solid var(--vetro-bordo);
 }
 
+/* Card del contenuto (D23, linee guida sezione 9.8): opache sul telefono e
+   nella fascia md; da 1024 px vetro leggero, superficie all'80% con
+   sfocatura. Contrasti verificati nel caso peggiore (card sopra la macchia
+   di colore più intensa dello sfondo): tutti i testi ≥ 4,7:1 in chiaro e
+   ≥ 4,8:1 in scuro. Mai sotto i campi dei moduli né nelle finestre. */
+.vetro-card {
+  background: var(--superficie);
+}
+@media (min-width: 64rem) {
+  .vetro-card {
+    background: color-mix(in srgb, var(--superficie) 80%, transparent);
+    -webkit-backdrop-filter: blur(40px) saturate(160%);
+    backdrop-filter: blur(40px) saturate(160%);
+    border: 1px solid var(--vetro-bordo);
+    box-shadow: 0 8px 32px rgb(0 0 0 / 0.06);
+  }
+}
+/* Contrasto aumentato e browser senza backdrop-filter: di nuovo opache */
+@media (prefers-contrast: more) {
+  .vetro-card {
+    background: var(--superficie);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .vetro-card {
+    background: var(--superficie);
+  }
+}
+
 /* Movimento ridotto: niente molle né scorrimenti, solo dissolvenze brevi */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

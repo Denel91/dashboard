@@ -9,8 +9,8 @@ import { PulsanteNuovaSpesa, STILE_ELEMENTO_NOSTRO } from './pulsante-nuova-spes
 // vetro, staccata dai bordi e sopra la barra di Safari, con il ＋ alla sua
 // destra alla stessa altezza (D16). È il solo elemento in vetro dell'app:
 // sopra il vetro si usa solo `testo`, la voce attiva ha la pillola opaca
-// `accento-tenue` con `accento`. Da 768 px la sostituirà la barra laterale
-// (D21, T-23).
+// `accento-tenue` con `accento`. Da 768 px la sostituisce la barra laterale
+// (D21, barra-laterale.tsx).
 
 type Voce = { href: string; etichetta: string; Icona: LucideIcon };
 
@@ -31,7 +31,7 @@ export function BarraInBasso() {
   const pathname = usePathname();
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:hidden">
       <div className="pointer-events-auto mx-auto flex w-full max-w-md items-center gap-3">
         <nav aria-label="Navigazione principale" className="vetro flex-1 rounded-capsula p-1 shadow-lg shadow-testo/10">
           <ul className="flex">
@@ -63,10 +63,3 @@ export function BarraInBasso() {
     </div>
   );
 }
-
-/**
- * Spazio da lasciare in fondo alle pagine con la barra in basso, perché
- * l'ultimo contenuto non finisca sotto il vetro: 60 px di barra + 12 px di
- * margine + 16 px di respiro, più il bordo sicuro dell'iPhone.
- */
-export const SPAZIO_BARRA_IN_BASSO = 'pb-[calc(5.5rem+env(safe-area-inset-bottom))]';

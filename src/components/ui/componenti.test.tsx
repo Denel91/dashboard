@@ -10,9 +10,9 @@ import { PulsantePrincipale } from './pulsante';
 afterEach(cleanup);
 
 describe('Card', () => {
-  it('usa superficie, o il colore tenue della persona che deve', () => {
+  it('usa la card di vetro leggero (opaca sotto 1024 px), o il colore tenue della persona che deve', () => {
     const { container, rerender } = render(<Card>Totale</Card>);
-    expect(container.firstElementChild?.className).toContain('bg-superficie');
+    expect(container.firstElementChild?.className).toContain('vetro-card');
     rerender(<Card tono="persona-b">Simona ti deve</Card>);
     expect(container.firstElementChild?.className).toContain('bg-persona-b-tenue');
   });
