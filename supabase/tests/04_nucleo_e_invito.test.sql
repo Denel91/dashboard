@@ -39,9 +39,13 @@ with rinominati as (
 )
 select is(count(*)::int, 1, 'A può rinominare il nucleo') from rinominati;
 
--- Codice fisso, per usarlo negli inviti qui sotto (come postgres)
+-- Codice fisso, per usarlo negli inviti qui sotto (come postgres).
+-- Solo sul nucleo di A: nel database locale possono esserci nuclei creati
+-- provando l'app, e il codice d'invito è unico
 reset role;
-update public.nuclei set codice_invito = 'codice-test';
+update public.nuclei set codice_invito = 'codice-test'
+ where id = (select nucleo_id from public.membri
+              where utente_id = 'aaaaaaaa-0000-0000-0000-000000000000');
 
 -- ---------------------------------------------------------------------
 -- Chi apre il link senza accesso (anon)

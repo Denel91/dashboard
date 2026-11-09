@@ -72,8 +72,9 @@ function reindirizza(url: URL, daCopiare: NextResponse) {
 }
 
 export const config = {
-  // Tutto tranne file statici e immagini
+  // Tutto tranne file statici, immagini e il ping del cron (T-20), che non
+  // ha sessione e si protegge da solo con CRON_SECRET
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|api/ping|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml)$).*)',
   ],
 };
