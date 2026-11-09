@@ -10,3 +10,8 @@ export {
 } from './pulsante';
 export { PulsanteNuovaSpesa } from './pulsante-nuova-spesa';
 export { BarraInBasso, SPAZIO_BARRA_IN_BASSO } from './barra-in-basso';
+export { Card } from './card';
+export { GruppoRighe, Riga } from './gruppo-righe';
+export { Iniziale } from './iniziale';
+export { Foglio, ApriFoglio } from './foglio';
+export { RegioneAvvisi, mostraAvviso, chiudiAvviso, DURATA_AVVISO_MS } from './avviso';
