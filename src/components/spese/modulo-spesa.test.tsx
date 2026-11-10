@@ -2,7 +2,8 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ModuloSpesa } from './modulo-spesa';
 
-vi.mock('next/navigation', () => ({ useRouter: () => ({ replace: vi.fn(), refresh: vi.fn(), push: vi.fn(), prefetch: vi.fn() }) }));
+const router = vi.hoisted(() => ({ replace: vi.fn(), refresh: vi.fn(), push: vi.fn(), prefetch: vi.fn() }));
+vi.mock('next/navigation', () => ({ useRouter: () => router }));
 
 afterEach(cleanup);
 
@@ -23,7 +24,8 @@ describe('ModuloSpesa (tavola 06)', () => {
     monta();
     expect(screen.getByRole('heading', { name: 'Nuova spesa' })).toBeDefined();
     expect(screen.getByRole('link', { name: 'Chiudi' }).getAttribute('href')).toBe('/');
-    expect((screen.getByLabelText('Data') as HTMLInputElement).value).toBe('2026-11-10');
+    expect((screen.getByLabelText(/^Data/) as HTMLInputElement).value).toBe('2026-11-10');
+    expect(screen.getByRole('radio', { name: /Tu · Simona/ })).toBeDefined();
     expect(screen.getByRole('radio', { name: /Io/ })).toHaveProperty('checked', true);
     expect(screen.getByRole('switch', { name: /Per l’altra persona/ })).toHaveProperty('checked', false);
   });
@@ -32,12 +34,14 @@ describe('ModuloSpesa (tavola 06)', () => {
     monta();
     const importo = screen.getByRole('textbox', { name: 'Importo' });
     fireEvent.change(importo, { target: { value: '47,30' } });
-    expect(screen.getByText(/Simona ti dovrà 23,65/)).toBeDefined();
+    const testo = () => document.body.textContent?.replace(/\u00a0/g, ' ');
+    expect(testo()).toContain('Simona ti dovrà 23,65 €');
+    expect(testo()).toContain('Tutto l’importo è a carico di Simona');
     fireEvent.click(screen.getByRole('radio', { name: /Simona/ }));
-    expect(screen.getByText(/Dovrai a Simona 23,65/)).toBeDefined();
+    expect(testo()).toContain('Dovrai a Simona 23,65 €');
     fireEvent.click(screen.getByRole('switch', { name: /Per l’altra persona/ }));
-    expect(screen.getByText(/Dovrai a Simona 47,30/)).toBeDefined();
-    expect(screen.getByText('Tutto a carico tuo')).toBeDefined();
+    expect(testo()).toContain('Dovrai a Simona 47,30 €');
+    expect(testo()).toContain('Tutto l’importo è a carico di Daniele');
   });
 
   it('da soli nel nucleo: niente "Chi ha pagato", interruttore e anteprima', () => {
@@ -99,20 +103,21 @@ describe('ModuloSpesa in Modifica spesa (tavola 07)', () => {
     expect((screen.getByRole('textbox', { name: 'Importo' }) as HTMLInputElement).value).toBe('38,00');
     expect(screen.getByRole('radio', { name: /Simona/ })).toHaveProperty('checked', true);
     expect(screen.getByRole('switch', { name: /Per l’altra persona/ })).toHaveProperty('checked', true);
-    expect((screen.getByLabelText('Data') as HTMLInputElement).value).toBe('2026-11-09');
+    expect((screen.getByLabelText(/^Data/) as HTMLInputElement).value).toBe('2026-11-09');
+    expect(screen.getByText('Ieri · 09/11/2026')).toBeDefined();
     expect(screen.getByRole('radio', { name: 'Spesa' }).getAttribute('aria-checked')).toBe('true');
     expect(screen.getByRole('button', { name: /Altro/ }).getAttribute('aria-expanded')).toBe('true');
     expect((screen.getByRole('textbox', { name: 'Descrizione' }) as HTMLInputElement).value).toBe('Pizzeria');
     expect(screen.getByRole('radio', { name: 'Contanti' })).toHaveProperty('checked', true);
     expect(screen.getByText('Creata da Simona il 09/11/2026')).toBeDefined();
-    expect(screen.getByText(/Dovrai a Simona 38,00/)).toBeDefined();
+    expect(document.body.textContent?.replace(/\u00a0/g, ' ')).toContain('Dovrai a Simona 38,00 €');
     expect((document.querySelector('input[name=data_modifica]') as HTMLInputElement).value).toBe('2026-11-09T10:00:00+00:00');
   });
 
-  it('F3: se la spesa è cambiata nel frattempo, chiede di ricaricare', async () => {
+  it('F3: se Simona ha cambiato la spesa nel frattempo, un foglio chiede di ricaricare (tavola 17)', async () => {
     render(
       <ModuloSpesa
-        azione={vi.fn(async () => ({ conflitto: true }))}
+        azione={vi.fn(async () => ({ conflitto: { autore: SIMONA.id, importoCentesimi: 4100, eliminata: false } }))}
         titolo="Modifica spesa"
         membri={[IO, SIMONA]}
         io={IO}
@@ -123,7 +128,31 @@ describe('ModuloSpesa in Modifica spesa (tavola 07)', () => {
       />,
     );
     fireEvent.click(screen.getByRole('button', { name: 'Salva' }));
-    expect(await screen.findByText('La spesa è stata modificata, ricarica.')).toBeDefined();
-    expect(screen.getByRole('button', { name: 'Ricarica' })).toBeDefined();
+    const foglio = await screen.findByRole('dialog', { name: 'La spesa è stata modificata, ricarica' });
+    expect(foglio.textContent?.replace(/\u00a0/g, ' ')).toContain(
+      'Simona ha cambiato questa spesa mentre la stavi modificando (importo 38,00 € → 41,00 €). Ricarica per vedere la versione aggiornata',
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Ricarica' }));
+    await vi.waitFor(() => expect(router.refresh).toHaveBeenCalled());
+  });
+
+  it('F3: Annulla chiude il foglio e lascia le modifiche', async () => {
+    render(
+      <ModuloSpesa
+        azione={vi.fn(async () => ({ conflitto: { autore: null, importoCentesimi: null, eliminata: true } }))}
+        titolo="Modifica spesa"
+        membri={[IO, SIMONA]}
+        io={IO}
+        categorie={CATEGORIE}
+        oggi="2026-11-10"
+        dopo="/spese"
+        iniziale={INIZIALE}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Salva' }));
+    await screen.findByRole('dialog', { name: 'La spesa è nel Cestino' });
+    fireEvent.click(screen.getByRole('button', { name: 'Annulla' }));
+    await vi.waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect((screen.getByRole('textbox', { name: 'Importo' }) as HTMLInputElement).value).toBe('38,00');
   });
 });

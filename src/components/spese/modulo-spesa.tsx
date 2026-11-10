@@ -1,32 +1,38 @@
 'use client';
 
-import { X } from 'lucide-react';
+import { RefreshCw, X } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { startTransition, useActionState, useEffect, useState, type ReactNode } from 'react';
-import type { StatoSpesa } from '@/app/actions/spese';
+import type { Conflitto, StatoSpesa } from '@/app/actions/spese';
 import {
   CampoData,
   CampoImporto,
   CampoTesto,
   ControlloSegmentato,
+  Foglio,
+  IconaFoglio,
   Iniziale,
   Interruttore,
   Modulo,
   PulsantePrincipale,
+  PulsanteTesto,
   SceltaCategoria,
   SezioneEspandibile,
   mostraAvviso,
   type CategoriaScelta,
 } from '@/components/ui';
-import { centesimiPerCampo, euroInCentesimi } from '@/lib/money';
+import { centesimiPerCampo, euroInCentesimi, formattaEuro } from '@/lib/money';
 import type { Membro } from '@/lib/nucleo/corrente';
 import { anteprimaSpesa } from '@/lib/spese/testi';
 
-// Modulo di Nuova spesa (tavola 06; da 768 px finestra al centro, tavola C3).
-// Ordine dei campi della tavola: importo, chi ha pagato e data, "Per
-// l'altra persona", categoria, "Altro" (descrizione, pagamento, nota),
-// anteprima, Salva. Già impostati: oggi, "pagato da me", a metà (US-10).
+// Modulo di Nuova spesa e Modifica spesa (tavole 06 e 07; da 768 px finestra
+// al centro, tavola C3). Ordine dei campi delle tavole: importo, chi ha
+// pagato, "Per l'altra persona", categoria, data con accanto "Altro"
+// (descrizione, pagamento, nota), "Creata da…" (solo in Modifica),
+// anteprima, Salva, Elimina (solo in Modifica). Sfondo grigio `sfondo` con i
+// campi bianchi, come nei wireframe. Già impostati: oggi, "pagato da me", a
+// metà (US-10).
 
 type Azione = (stato: StatoSpesa, dati: FormData) => Promise<StatoSpesa>;
 
@@ -52,7 +58,7 @@ export function ModuloSpesa({
   dopo,
   iniziale,
   nascosti,
-  azioniTitolo,
+  eliminazione,
   dettagli,
 }: {
   azione: Azione;
@@ -68,9 +74,9 @@ export function ModuloSpesa({
   iniziale?: ValoriSpesa;
   /** Campi nascosti per la Server Action (id e data_modifica in Modifica spesa). */
   nascosti?: Record<string, string>;
-  /** A destra del titolo, per esempio Elimina (tavole 07 e C2). */
-  azioniTitolo?: ReactNode;
-  /** Sotto i campi, per esempio "Creata da Simona il 03/11/2026". */
+  /** Sotto Salva, il pulsante Elimina di Modifica spesa (tavola 07). */
+  eliminazione?: ReactNode;
+  /** Sopra l'anteprima, per esempio "Creata da Simona il 03/11/2026 alle 21:30". */
   dettagli?: ReactNode;
 }) {
   const router = useRouter();
@@ -78,6 +84,9 @@ export function ModuloSpesa({
   const [importo, setImporto] = useState(iniziale ? centesimiPerCampo(iniziale.importoCentesimi) : '');
   const [pagataDa, setPagataDa] = useState(iniziale?.pagataDa ?? io.id);
   const [perAltra, setPerAltra] = useState(iniziale?.perAltraPersona ?? false);
+  // F3 resta aperto finché non si sceglie; un nuovo tentativo lo riapre
+  const [conflittoChiuso, setConflittoChiuso] = useState<StatoSpesa | null>(null);
+  const conflittoAperto = !!stato.conflitto && conflittoChiuso !== stato;
   const altroCompilato = !!iniziale && (!!iniziale.descrizione || !!iniziale.note || iniziale.metodoPagamento !== 'carta');
 
   const altra = membri.find((m) => !m.sonoIo) ?? null;
@@ -114,27 +123,26 @@ export function ModuloSpesa({
         startTransition(() => invia(dati));
       }}
       validationErrors={stato.errori}
-      className="min-h-dvh gap-0 md:min-h-0"
+      className="min-h-dvh gap-0 bg-sfondo md:min-h-0"
     >
       {/* Titolo al centro e ✕ a sinistra (linee guida sezione 3, schermate modali) */}
-      <header className="sticky top-0 z-10 grid grid-cols-[5.5rem_1fr_5.5rem] items-center border-b border-separatore bg-superficie px-2 pt-[env(safe-area-inset-top)] md:static md:pt-0">
+      <header className="sticky top-0 z-10 grid grid-cols-[3rem_1fr_3rem] items-center bg-sfondo px-2 pt-[env(safe-area-inset-top)] md:static md:pt-0">
         <Link
           href={dopo}
           replace
           aria-label="Chiudi"
           className={
-            'flex size-11 items-center justify-center rounded-capsula text-testo outline-hidden hover:bg-superficie-2 active:opacity-70 ' +
+            'flex size-11 items-center justify-center rounded-capsula bg-superficie text-testo outline-hidden hover:brightness-95 active:opacity-70 ' +
             'focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-accento'
           }
         >
           <X aria-hidden className="size-5" />
         </Link>
         <h1 className="py-3 text-center text-intestazione">{titolo}</h1>
-        <div className="flex justify-end">{azioniTitolo}</div>
       </header>
       {nascosti && Object.entries(nascosti).map(([nome, valore]) => <input key={nome} type="hidden" name={nome} value={valore} />)}
 
-      <div className="flex flex-1 flex-col gap-5 px-4 pt-5 pb-6 md:px-6">
+      <div className="flex flex-1 flex-col gap-4 px-4 pt-2 pb-6 md:px-6">
         <CampoImporto
           name="importo"
           value={importo}
@@ -144,35 +152,31 @@ export function ModuloSpesa({
           validationBehavior="aria"
         />
 
-        <div className="grid gap-4 sm:grid-cols-2 sm:gap-3">
-          {altra ? (
-            <ControlloSegmentato
-              etichetta="Chi ha pagato"
-              name="pagata_da"
-              valore={pagataDa}
-              onChange={setPagataDa}
-              opzioni={[
-                { valore: io.id, etichetta: <><Iniziale nome={io.nome} persona={io.persona} dimensione="piccola" decorativa />Io</> },
-                { valore: altra.id, etichetta: <><Iniziale nome={altra.nome} persona={altra.persona} dimensione="piccola" decorativa />{altra.nome}</> },
-              ]}
-            />
-          ) : (
-            <input type="hidden" name="pagata_da" value={io.id} />
-          )}
-          <CampoData
-            name="data_spesa"
-            oggi={oggi}
-            valoreIniziale={iniziale?.dataSpesa}
-            errore={stato.errori?.data_spesa}
+        {altra ? (
+          <ControlloSegmentato
+            etichetta="Chi ha pagato"
+            name="pagata_da"
+            valore={pagataDa}
+            onChange={setPagataDa}
+            opzioni={[
+              { valore: io.id, etichetta: <><Iniziale nome={io.nome} persona={io.persona} dimensione="piccola" decorativa />Io</> },
+              {
+                valore: altra.id,
+                etichetta: <><Iniziale nome={altra.nome} persona={altra.persona} dimensione="piccola" decorativa />Tu · {altra.nome}</>,
+              },
+            ]}
           />
-        </div>
+        ) : (
+          <input type="hidden" name="pagata_da" value={io.id} />
+        )}
 
         {altra && (
           <Interruttore
             name="per_altra_persona"
             attivo={perAltra}
             onChange={setPerAltra}
-            nota={perAltra ? (pagataDa === io.id ? `Tutto a carico di ${altra.nome}` : 'Tutto a carico tuo') : undefined}
+            sfondo="foglio"
+            nota={`Tutto l’importo è a carico di ${pagataDa === io.id ? altra.nome : io.nome}`}
           >
             Per l’altra persona
           </Interruttore>
@@ -180,7 +184,12 @@ export function ModuloSpesa({
 
         <SceltaCategoria categorie={categorie} name="categoria_id" valoreIniziale={iniziale?.categoriaId ?? null} />
 
-        <SezioneEspandibile titolo="Altro" riassunto="Descrizione, pagamento, nota" apertaIniziale={altroCompilato}>
+        <SezioneEspandibile
+          titolo="Altro"
+          riassunto="Descrizione, pagamento, nota"
+          apertaIniziale={altroCompilato}
+          accanto={<CampoData name="data_spesa" oggi={oggi} valoreIniziale={iniziale?.dataSpesa} errore={stato.errori?.data_spesa} />}
+        >
           <CampoTesto
             name="descrizione"
             etichetta="Descrizione"
@@ -192,7 +201,6 @@ export function ModuloSpesa({
             etichetta="Metodo di pagamento"
             name="metodo_pagamento"
             valoreIniziale={iniziale?.metodoPagamento ?? 'carta'}
-            sfondo="foglio"
             opzioni={[
               { valore: 'carta', etichetta: 'Carta' },
               { valore: 'contanti', etichetta: 'Contanti' },
@@ -202,24 +210,17 @@ export function ModuloSpesa({
           <CampoTesto name="note" etichetta="Nota" righe={3} maxLength={500} defaultValue={iniziale?.note ?? ''} />
         </SezioneEspandibile>
 
+        {dettagli && <p className="-mb-1 px-1 text-nota text-testo-secondario">{dettagli}</p>}
+
         {anteprima && altra && (
-          <p
-            aria-live="polite"
-            className={
-              'flex items-center justify-center gap-2 rounded-campo px-4 py-3 text-intestazione ' +
-              ((anteprima.debitore === 'altra' ? altra.persona : io.persona) === 'a' ? 'bg-persona-a-tenue' : 'bg-persona-b-tenue')
-            }
-          >
-            {anteprima.debitore === 'altra' ? (
-              <Iniziale nome={altra.nome} persona={altra.persona} dimensione="piccola" decorativa />
-            ) : (
-              <Iniziale nome={io.nome} persona={io.persona} dimensione="piccola" decorativa />
-            )}
-            {anteprima.testo}
+          <p aria-live="polite" className="flex items-center gap-2 px-1 text-sottotitolo text-testo">
+            {/* Sempre l'iniziale dell'altra persona, come nelle tavole 06 e 07 */}
+            <Iniziale nome={altra.nome} persona={altra.persona} dimensione="piccola" decorativa />
+            <span>
+              {anteprima.prima} <strong className="importo font-semibold">{anteprima.importo}</strong>
+            </span>
           </p>
         )}
-
-        {dettagli && <p className="text-center text-nota text-testo-secondario">{dettagli}</p>}
 
         {stato.messaggio && (
           <p role="alert" className="text-sottotitolo text-pericolo">
@@ -227,26 +228,9 @@ export function ModuloSpesa({
           </p>
         )}
 
-        {/* F3: l'altra persona ha modificato la spesa nel frattempo (NF-06) */}
-        {stato.conflitto && (
-          <div role="alert" className="flex items-center justify-between gap-3 rounded-campo bg-superficie-2 px-4 py-3">
-            <p className="text-sottotitolo text-testo">La spesa è stata modificata, ricarica.</p>
-            <button
-              type="button"
-              onClick={() => router.refresh()}
-              className={
-                'min-h-11 shrink-0 rounded-capsula px-3 text-corpo text-accento outline-hidden hover:bg-accento-tenue ' +
-                'focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-accento'
-              }
-            >
-              Ricarica
-            </button>
-          </div>
-        )}
-
-        {/* Salva nella metà bassa (linee guida 6.3); da 768 px in basso a destra
+        {/* Salva subito dopo l'anteprima, come nelle tavole 06 e 07; da 768 px a destra
             con Annulla e il suggerimento dei tasti (sezione 9.4) */}
-        <div className="mt-auto flex items-center gap-3 pt-2 md:justify-end">
+        <div className="flex items-center gap-3 pt-1 md:justify-end">
           <p className="mr-auto hidden text-didascalia text-testo-secondario md:block">
             Invio per salvare · Esc per chiudere
           </p>
@@ -264,7 +248,80 @@ export function ModuloSpesa({
             {inCorso ? 'Salvo…' : 'Salva'}
           </PulsantePrincipale>
         </div>
+
+        {eliminazione && <div className="-mt-1 flex justify-center">{eliminazione}</div>}
       </div>
+
+      {/* F3: qualcuno ha modificato la spesa nel frattempo (NF-06, tavola 17) */}
+      <Foglio
+        titolo={stato.conflitto?.eliminata ? 'La spesa è nel Cestino' : 'La spesa è stata modificata, ricarica'}
+        icona={
+          <IconaFoglio tono="attenzione">
+            <RefreshCw className="size-5" />
+          </IconaFoglio>
+        }
+        isOpen={conflittoAperto}
+        onOpenChange={(aperto) => !aperto && setConflittoChiuso(stato)}
+      >
+        {({ chiudi }) => (
+          <div className="flex flex-col gap-5">
+            {stato.conflitto && <TestoConflitto conflitto={stato.conflitto} membri={membri} importoLetto={iniziale?.importoCentesimi} />}
+            <div className="flex flex-col gap-2 md:flex-row-reverse md:justify-start">
+              <PulsantePrincipale
+                onPress={() => {
+                  chiudi();
+                  router.refresh();
+                }}
+              >
+                Ricarica
+              </PulsantePrincipale>
+              <PulsanteTesto onPress={chiudi}>Annulla</PulsanteTesto>
+            </div>
+          </div>
+        )}
+      </Foglio>
     </Modulo>
+  );
+}
+
+/**
+ * Testo di F3 (tavola 17): "Simona ha cambiato questa spesa mentre la stavi
+ * modificando (importo 38,00 € → 41,00 €). Ricarica per vedere la versione
+ * aggiornata: le tue modifiche non salvate andranno perse."
+ */
+function TestoConflitto({
+  conflitto,
+  membri,
+  importoLetto,
+}: {
+  conflitto: Conflitto;
+  membri: Membro[];
+  importoLetto?: number;
+}) {
+  const chi = membri.find((m) => m.id === conflitto.autore);
+  const soggetto = !chi ? null : chi.sonoIo ? 'Hai cambiato questa spesa da un’altra finestra' : `${chi.nome} ha cambiato questa spesa`;
+  let frase: string;
+  if (conflitto.eliminata) {
+    frase =
+      (chi ? (chi.sonoIo ? 'L’hai spostata nel Cestino da un’altra finestra' : `${chi.nome} l’ha spostata nel Cestino`) : 'È stata spostata nel Cestino') +
+      ' mentre la stavi modificando. Le tue modifiche non salvate andranno perse.';
+  } else {
+    const importo =
+      importoLetto !== undefined && conflitto.importoCentesimi !== null && conflitto.importoCentesimi !== importoLetto
+        ? ` (importo ${formattaEuro(importoLetto)} → ${formattaEuro(conflitto.importoCentesimi)})`
+        : '';
+    frase =
+      `${soggetto ?? 'Questa spesa è stata cambiata'} mentre la stavi modificando${importo}. ` +
+      'Ricarica per vedere la versione aggiornata: le tue modifiche non salvate andranno perse.';
+  }
+  return (
+    <p className="text-corpo text-testo">
+      {chi && !chi.sonoIo && (
+        <span className="mr-1.5 inline-flex align-[-0.2em]">
+          <Iniziale nome={chi.nome} persona={chi.persona} dimensione="piccola" decorativa />
+        </span>
+      )}
+      {frase}
+    </p>
   );
 }

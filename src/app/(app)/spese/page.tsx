@@ -1,4 +1,3 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -8,8 +7,9 @@ import { eliminaSpesa, modificaSpesa } from '@/app/actions/spese';
 import { EliminaSpesa } from '@/components/spese/elimina-spesa';
 import { ElencoSpese, type CategoriaInElenco } from '@/components/spese/elenco-spese';
 import { ModuloSpesa } from '@/components/spese/modulo-spesa';
+import { SceltaMese } from '@/components/spese/scelta-mese';
 import { hrefNuovaSpesa } from '@/components/ui';
-import { dataBreve, limitiMese, meseDaParametro, meseVicino, nomeMese, oggiIso, type Mese } from '@/lib/date';
+import { dataEOra, limitiMese, meseDaParametro, meseEAnno, mesiFinoA, nomeMese, oggiIso, type Mese } from '@/lib/date';
 import { formattaEuro } from '@/lib/money';
 import { leggiNucleoCorrente } from '@/lib/nucleo/corrente';
 import { raggruppaPerGiorno, riepilogoMese, type SpesaInElenco } from '@/lib/spese/elenco';
@@ -86,12 +86,13 @@ async function Contenuto({ searchParams }: Pick<PageProps<'/spese'>, 'searchPara
         <p className="text-sottotitolo text-testo-secondario">{nucleo.nome}</p>
       </header>
 
-      <NavigazioneMese mese={mese} nome={nome} corrente={mese === oggi.slice(0, 7)} />
+      <SceltaMese mese={mese} mesi={scelteMese(mese, oggi)} />
 
       {numero > 0 && (
-        <p className="-mt-3 px-1 text-sottotitolo text-testo-secondario">
-          {numero === 1 ? '1 spesa' : `${numero} spese`} ·{' '}
-          <span className="importo text-testo">{formattaEuro(totaleCentesimi)}</span>
+        <p className="-mt-3 px-1 text-nota text-testo-secondario">
+          <span className="sr-only">Totale {formattaEuro(totaleCentesimi)}. </span>
+          {numero === 1 ? '1 spesa' : `${numero} spese`} · {meseEAnno(mese)} · i totali del giorno escludono gli anticipi per
+          terzi
         </p>
       )}
 
@@ -160,8 +161,14 @@ async function Contenuto({ searchParams }: Pick<PageProps<'/spese'>, 'searchPara
                 metodoPagamento: METODI.find((m) => m === dettaglio.metodo_pagamento) ?? 'carta',
                 note: dettaglio.note,
               }}
-              azioniTitolo={<EliminaSpesa elimina={eliminaSpesa.bind(null, dettaglio.id)} dopo={indirizzoElenco} />}
-              dettagli={`Creata ${autore ? `da ${autore.sonoIo ? 'te' : autore.nome} ` : ''}il ${dataBreve(dettaglio.data_creazione)}`}
+              eliminazione={
+                <EliminaSpesa
+                  elimina={eliminaSpesa.bind(null, dettaglio.id)}
+                  dopo={indirizzoElenco}
+                  riassunto={`${dettaglio.descrizione ?? perCategoria.get(dettaglio.categoria_id ?? '')?.nome ?? 'Senza categoria'} · ${formattaEuro(dettaglio.importo_centesimi)}`}
+                />
+              }
+              dettagli={`Creata ${autore ? `da ${autore.sonoIo ? 'te' : autore.nome} ` : ''}il ${dataEOra(dettaglio.data_creazione)}`}
             />
           ) : (
             <SpesaNonTrovata dopo={indirizzoElenco} />
@@ -217,29 +224,9 @@ function SpesaNonTrovata({ dopo }: { dopo: string }) {
   );
 }
 
-const STILE_FRECCIA =
-  'flex size-11 items-center justify-center rounded-capsula text-accento outline-hidden hover:bg-accento-tenue active:opacity-70 ' +
-  'focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-accento';
-
-/** ‹ novembre › : il mese prima e dopo. Niente mesi nel futuro. */
-function NavigazioneMese({ mese, nome, corrente }: { mese: Mese; nome: string; corrente: boolean }) {
-  return (
-    <nav aria-label="Mese" className="flex items-center gap-1">
-      <Link href={`/spese?mese=${meseVicino(mese, -1)}`} aria-label="Mese prima" className={STILE_FRECCIA}>
-        <ChevronLeft aria-hidden className="size-5" />
-      </Link>
-      <p aria-live="polite" className="min-w-36 text-center text-titolo-3 font-semibold first-letter:uppercase">
-        {nome}
-      </p>
-      {corrente ? (
-        <span aria-hidden className={STILE_FRECCIA + ' pointer-events-none opacity-30'}>
-          <ChevronRight className="size-5" />
-        </span>
-      ) : (
-        <Link href={`/spese?mese=${meseVicino(mese, 1)}`} aria-label="Mese dopo" className={STILE_FRECCIA}>
-          <ChevronRight aria-hidden className="size-5" />
-        </Link>
-      )}
-    </nav>
-  );
+/** Mesi della tendina: gli ultimi 24, più quello dell'indirizzo se è più vecchio. */
+function scelteMese(mese: Mese, oggi: string) {
+  const mesi = mesiFinoA(oggi.slice(0, 7) as Mese, 24);
+  if (!mesi.includes(mese)) mesi.push(mese);
+  return mesi.map((m) => ({ valore: m, nome: nomeMese(m, oggi) }));
 }

@@ -83,3 +83,41 @@ const fmtDataBreve = new Intl.DateTimeFormat('it-IT', { day: '2-digit', month: '
 export function dataBreve(istante: string | Date): string {
   return fmtDataBreve.format(typeof istante === 'string' ? new Date(istante) : istante);
 }
+
+const fmtOra = new Intl.DateTimeFormat('it-IT', { hour: '2-digit', minute: '2-digit', timeZone: FUSO_ORARIO });
+
+/** Un istante come "03/11/2026 alle 21:30", nel fuso italiano (tavola 07). */
+export function dataEOra(istante: string | Date): string {
+  const d = typeof istante === 'string' ? new Date(istante) : istante;
+  return `${dataBreve(d)} alle ${fmtOra.format(d)}`;
+}
+
+/** Una data AAAA-MM-GG come gg/mm/aaaa, senza passare dal fuso: "04/11/2026". */
+export function dataIsoBreve(giorno: string): string {
+  const [a, m, g] = giorno.split('-');
+  return `${g}/${m}/${a}`;
+}
+
+/**
+ * Valore del campo data di Nuova spesa e Modifica spesa (tavole 06 e 07):
+ *   oggi → "Oggi · 04/11/2026"; ieri → "Ieri · 03/11/2026"; altrimenti "02/11/2026".
+ */
+export function etichettaData(giorno: string, oggi: string): string {
+  const ieri = new Date(`${oggi}T00:00:00Z`);
+  ieri.setUTCDate(ieri.getUTCDate() - 1);
+  if (giorno === oggi) return `Oggi · ${dataIsoBreve(giorno)}`;
+  if (giorno === ieri.toISOString().slice(0, 10)) return `Ieri · ${dataIsoBreve(giorno)}`;
+  return dataIsoBreve(giorno);
+}
+
+/** I mesi da mostrare nella tendina dell'elenco (tavola 05): dal più recente, `quanti` in tutto. */
+export function mesiFinoA(mese: Mese, quanti: number): Mese[] {
+  const mesi: Mese[] = [mese];
+  for (let i = 1; i < quanti; i++) mesi.push(meseVicino(mesi[i - 1], -1));
+  return mesi;
+}
+
+/** "novembre 2026", sempre con l'anno (riga sotto il titolo di Spese, tavola 05). */
+export function meseEAnno(mese: Mese): string {
+  return fmtMeseAnno.format(new Date(`${mese}-01T00:00:00Z`));
+}

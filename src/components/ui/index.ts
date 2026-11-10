@@ -17,7 +17,7 @@ export { SfondoSfumato } from './sfondo-sfumato';
 export { Card } from './card';
 export { GruppoRighe, Riga } from './gruppo-righe';
 export { Iniziale } from './iniziale';
-export { Foglio, ApriFoglio } from './foglio';
+export { Foglio, ApriFoglio, IconaFoglio } from './foglio';
 export { RegioneAvvisi, mostraAvviso, chiudiAvviso, DURATA_AVVISO_MS } from './avviso';
 export { CampoTesto, Modulo } from './campo';
 export { ControlloSegmentato, type OpzioneSegmento } from './controllo-segmentato';

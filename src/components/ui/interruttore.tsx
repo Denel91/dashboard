@@ -15,6 +15,7 @@ export function Interruttore({
   onChange,
   name,
   isDisabled,
+  sfondo = 'pagina',
 }: {
   children: ReactNode;
   /** Riga sotto l'etichetta, per esempio la conseguenza sul saldo. */
@@ -25,6 +26,8 @@ export function Interruttore({
   /** Nome del campo nel FormData: vale "on" quando è acceso. */
   name?: string;
   isDisabled?: boolean;
+  /** `foglio`: la riga sta su uno sfondo grigio (Nuova spesa, tavola 06) e diventa bianca. */
+  sfondo?: 'pagina' | 'foglio';
 }) {
   return (
     <Switch
@@ -34,7 +37,8 @@ export function Interruttore({
       name={name}
       isDisabled={isDisabled}
       className={
-        'group flex min-h-12 cursor-pointer select-none items-center justify-between gap-4 rounded-campo bg-superficie-2 px-4 py-2 ' +
+        'group flex min-h-12 cursor-pointer select-none items-center justify-between gap-4 rounded-campo px-4 py-2 ' +
+        (sfondo === 'foglio' ? 'bg-superficie ' : 'bg-superficie-2 ') +
         'outline-hidden data-disabled:cursor-default data-disabled:opacity-40 ' +
         'data-focus-visible:outline-2 data-focus-visible:outline-solid data-focus-visible:outline-offset-2 data-focus-visible:outline-accento'
       }

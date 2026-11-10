@@ -117,15 +117,16 @@ describe('CampoData', () => {
     expect(oggiIso(new Date('2026-07-05T22:01:00Z'))).toBe('2026-07-06');
   });
 
-  it('è un campo data nativo, già su oggi, con "oggi" accanto', () => {
+  it('è un campo data nativo, già su oggi, e si legge "Oggi · 10/11/2026" (tavola 06)', () => {
     render(<CampoData name="data_spesa" oggi="2026-11-10" />);
-    const campo = screen.getByLabelText('Data') as HTMLInputElement;
+    const campo = screen.getByLabelText(/^Data/) as HTMLInputElement;
     expect(campo.type).toBe('date');
     expect(campo.value).toBe('2026-11-10');
     expect(campo.max).toBe('2026-11-10');
-    expect(screen.getByText('oggi')).toBeDefined();
+    expect(screen.getByText('Oggi · 10/11/2026')).toBeDefined();
     fireEvent.change(campo, { target: { value: '2026-11-01' } });
-    expect(screen.queryByText('oggi')).toBeNull();
+    expect(screen.getByText('01/11/2026')).toBeDefined();
+    expect(campo.getAttribute('aria-label')).toBe('Data: 01/11/2026');
   });
 });
 

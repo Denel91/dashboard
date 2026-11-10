@@ -34,6 +34,8 @@ type PropsFoglio = {
    * `modulo` 560 px (Nuova spesa e Modifica spesa).
    */
   larghezza?: 'foglio' | 'modulo';
+  /** Sopra il titolo, per le conferme e gli avvisi (tavole 17 e 19d): `IconaFoglio`. */
+  icona?: ReactNode;
 };
 
 const LARGHEZZA = { foglio: 'md:w-[480px]', modulo: 'md:w-[560px]' } as const;
@@ -41,7 +43,7 @@ const LARGHEZZA = { foglio: 'md:w-[480px]', modulo: 'md:w-[560px]' } as const;
 /** Da 768 px il foglio è una finestra al centro e non si trascina. */
 const QUERY_FINESTRA = '(min-width: 48rem)';
 
-export function Foglio({ titolo, children, isOpen, onOpenChange, isDismissable = true, larghezza = 'foglio' }: PropsFoglio) {
+export function Foglio({ titolo, children, isOpen, onOpenChange, isDismissable = true, larghezza = 'foglio', icona }: PropsFoglio) {
   return (
     <ModalOverlay
       isOpen={isOpen}
@@ -66,7 +68,7 @@ export function Foglio({ titolo, children, isOpen, onOpenChange, isDismissable =
       >
         <Dialog className="outline-hidden">
           {({ close }) => (
-            <CorpoFoglio titolo={titolo} chiudi={close} trascinabile={isDismissable}>
+            <CorpoFoglio titolo={titolo} icona={icona} chiudi={close} trascinabile={isDismissable}>
               {typeof children === 'function' ? children({ chiudi: close }) : children}
             </CorpoFoglio>
           )}
@@ -78,11 +80,13 @@ export function Foglio({ titolo, children, isOpen, onOpenChange, isDismissable =
 
 function CorpoFoglio({
   titolo,
+  icona,
   chiudi,
   trascinabile,
   children,
 }: {
   titolo: string;
+  icona?: ReactNode;
   chiudi: () => void;
   trascinabile: boolean;
   children: ReactNode;
@@ -129,6 +133,7 @@ function CorpoFoglio({
         }
       >
         <div aria-hidden="true" className="mx-auto mb-3 h-1.5 w-9 rounded-capsula bg-separatore md:hidden" />
+        {icona && <div className="mb-3">{icona}</div>}
         <Heading slot="title" className="text-titolo-2 font-bold text-testo">
           {titolo}
         </Heading>
@@ -146,4 +151,21 @@ function CorpoFoglio({
  */
 export function ApriFoglio({ children }: { children: [ReactNode, ReactNode] }) {
   return <DialogTrigger>{children}</DialogTrigger>;
+}
+
+const TONO_ICONA = {
+  pericolo: 'bg-pericolo/12 text-pericolo',
+  attenzione: 'bg-budget-attenzione/15 text-budget-attenzione-testo',
+} as const;
+
+/**
+ * Icona in un quadratino tenue sopra il titolo del foglio (tavole 17 e 19d):
+ * rosso per le azioni distruttive (F5), arancione per gli avvisi (F3).
+ */
+export function IconaFoglio({ tono, children }: { tono: keyof typeof TONO_ICONA; children: ReactNode }) {
+  return (
+    <span aria-hidden className={`flex size-11 items-center justify-center rounded-campo ${TONO_ICONA[tono]}`}>
+      {children}
+    </span>
+  );
 }
