@@ -1,22 +1,27 @@
 'use client';
 
+import { Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import type { EsitoEliminazione } from '@/app/actions/spese';
-import { ApriFoglio, Foglio, PulsanteDistruttivo, PulsanteTesto, mostraAvviso } from '@/components/ui';
+import { ApriFoglio, Foglio, IconaFoglio, PulsanteDistruttivo, PulsanteTesto, mostraAvviso } from '@/components/ui';
 
-// Elimina in Modifica spesa (tavola 07, US-13) con la conferma F5 (tavola
-// 19d): "Spostare nel Cestino? Potrai recuperarla per 30 giorni". Sul
+// Elimina in Modifica spesa (tavola 07, US-13), sotto Salva, con la
+// conferma F5 (tavola 19d): "Pizzeria Da Gino · 38,00 €. Potrai recuperarla
+// dal Cestino per 30 giorni. Nel frattempo non conta nel saldo." Sul
 // telefono è un foglio dal basso, da 768 px una finestra al centro.
 // Confermando, la spesa va nel Cestino (D10) e si torna all'elenco.
 
 export function EliminaSpesa({
   elimina,
   dopo,
+  riassunto,
 }: {
   /** eliminaSpesa già legata all'id della spesa. */
   elimina: () => Promise<EsitoEliminazione>;
   dopo: string;
+  /** La spesa in breve, in grassetto nel testo di F5: "Pizzeria Da Gino · 38,00 €". */
+  riassunto: string;
 }) {
   const router = useRouter();
   const [inCorso, avvia] = useTransition();
@@ -39,11 +44,24 @@ export function EliminaSpesa({
 
   return (
     <ApriFoglio>
-      <PulsanteDistruttivo>Elimina</PulsanteDistruttivo>
-      <Foglio titolo="Spostare nel Cestino?">
+      <PulsanteDistruttivo className="gap-1.5 px-3 font-semibold">
+        <Trash2 aria-hidden className="size-4.5" />
+        Elimina
+      </PulsanteDistruttivo>
+      <Foglio
+        titolo="Spostare nel Cestino?"
+        icona={
+          <IconaFoglio tono="pericolo">
+            <Trash2 className="size-5" />
+          </IconaFoglio>
+        }
+      >
         {({ chiudi }) => (
           <div className="flex flex-col gap-5">
-            <p className="text-corpo text-testo-secondario">Potrai recuperarla per 30 giorni.</p>
+            <p className="text-corpo text-testo">
+              <strong className="font-semibold">{riassunto}</strong>. Potrai recuperarla dal Cestino per 30 giorni. Nel
+              frattempo non conta nel saldo.
+            </p>
             {errore && (
               <p role="alert" className="text-sottotitolo text-pericolo">
                 {errore}

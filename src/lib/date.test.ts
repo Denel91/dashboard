@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { dataBreve, etichettaGiorno, limitiMese, meseDaParametro, meseVicino, nomeMese } from './date';
+import { dataBreve, dataEOra, etichettaData, etichettaGiorno, limitiMese, meseDaParametro, meseVicino, mesiFinoA, nomeMese } from './date';
 
 describe('mesi (tavola 05)', () => {
   it('legge ?mese= e ripiega sul mese di oggi', () => {
@@ -40,5 +40,20 @@ describe('dataBreve', () => {
   it('scrive gg/mm/aaaa nel fuso italiano', () => {
     expect(dataBreve('2026-11-03T10:00:00+00:00')).toBe('03/11/2026');
     expect(dataBreve('2026-11-03T23:30:00Z')).toBe('04/11/2026');
+  });
+});
+
+describe('date della tavola 07 e del campo data', () => {
+  it('dataEOra nel fuso italiano', () => {
+    expect(dataEOra('2026-11-03T20:30:00Z')).toBe('03/11/2026 alle 21:30');
+  });
+  it('etichettaData con oggi e ieri', () => {
+    expect(etichettaData('2026-11-04', '2026-11-04')).toBe('Oggi · 04/11/2026');
+    expect(etichettaData('2026-11-03', '2026-11-04')).toBe('Ieri · 03/11/2026');
+    expect(etichettaData('2026-02-28', '2026-03-01')).toBe('Ieri · 28/02/2026');
+    expect(etichettaData('2026-11-02', '2026-11-04')).toBe('02/11/2026');
+  });
+  it('mesiFinoA va indietro attraverso l’anno', () => {
+    expect(mesiFinoA('2026-02', 3)).toEqual(['2026-02', '2026-01', '2025-12']);
   });
 });

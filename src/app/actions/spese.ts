@@ -4,7 +4,8 @@ import { z } from 'zod';
 import { oggiIso } from '@/lib/date';
 import { euroInCentesimi } from '@/lib/money';
 import { leggiNucleoCorrente } from '@/lib/nucleo/corrente';
-import { testoSpesaSalvata } from '@/lib/spese/testi';
+import type { ContenutoAvviso } from '@/lib/avvisi';
+import { avvisoSpesa } from '@/lib/spese/testi';
 import { createClient } from '@/lib/supabase/server';
 
 // US-10, US-11, US-12: salvare una spesa. Il database controlla di nuovo
@@ -15,13 +16,20 @@ import { createClient } from '@/lib/supabase/server';
 export type StatoSpesa = {
   errori?: Record<string, string>;
   messaggio?: string;
-  /** Salvata: testo dell'avviso F7 da mostrare dopo. */
-  salvata?: { avviso: string };
-  /** F3: nel frattempo l'altra persona ha modificato la spesa (NF-06). */
-  conflitto?: boolean;
+  /** Salvata: l'avviso F7 da mostrare dopo (tavola 19b). */
+  salvata?: { avviso: ContenutoAvviso };
+  /** F3: nel frattempo qualcuno ha modificato la spesa (NF-06, tavola 17). */
+  conflitto?: Conflitto;
 };
 
-export type EsitoEliminazione = { avviso?: string; messaggio?: string };
+/**
+ * Cosa sappiamo della modifica arrivata nel frattempo, per il testo di F3:
+ * chi l'ha fatta (l'ultima voce della cronologia) e l'importo di adesso.
+ * `eliminata`: nel frattempo la spesa è finita nel Cestino.
+ */
+export type Conflitto = { autore: string | null; importoCentesimi: number | null; eliminata: boolean };
+
+export type EsitoEliminazione = { avviso?: string | ContenutoAvviso; messaggio?: string };
 
 const ERRORE_IMPREVISTO = 'Non sono riuscito a salvare. Controlla la connessione e riprova.';
 
@@ -93,19 +101,47 @@ function leggiCampi(dati: FormData, nucleo: Nucleo) {
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;
 
+type ValoriAvviso = { descrizione: string | null; importo_centesimi: number; categoria_id: string | null };
+
 /**
- * Testo dell'avviso dopo un salvataggio, con il saldo aggiornato dalla vista
- * `saldi`. Se la lettura non riesce, la spesa è comunque salvata: l'avviso
- * dice solo la prima parte.
+ * Avviso dopo un salvataggio (F7, tavola 19b): la spesa in breve e il saldo
+ * aggiornato dalla vista `saldi`. Se una lettura non riesce, la spesa è
+ * comunque salvata: l'avviso dice solo quello che sa.
  */
-async function avvisoConSaldo(supabase: Supabase, nucleo: Nucleo, primaParte: string) {
-  const altra = nucleo.membri.find((m) => !m.sonoIo);
-  let saldo: number | null = null;
-  if (altra) {
-    const { data } = await supabase.from('saldi').select('saldo_centesimi').eq('membro_id', nucleo.io.id).maybeSingle();
-    saldo = data?.saldo_centesimi ?? null;
-  }
-  return testoSpesaSalvata(saldo, altra?.nome ?? null).replace('Spesa salvata', primaParte);
+async function avvisoConSaldo(supabase: Supabase, nucleo: Nucleo, titolo: string, spesa: ValoriAvviso) {
+  const altra = nucleo.membri.find((m) => !m.sonoIo) ?? null;
+  const [saldo, categoria] = await Promise.all([
+    altra ? supabase.from('saldi').select('saldo_centesimi').eq('membro_id', nucleo.io.id).maybeSingle() : null,
+    spesa.categoria_id ? supabase.from('categorie').select('nome').eq('id', spesa.categoria_id).maybeSingle() : null,
+  ]);
+  return avvisoSpesa({
+    titolo,
+    descrizione: spesa.descrizione,
+    importoCentesimi: spesa.importo_centesimi,
+    categoria: categoria?.data?.nome ?? null,
+    saldoCentesimi: saldo?.data?.saldo_centesimi ?? null,
+    persone: { io: nucleo.io, altra },
+  });
+}
+
+/** F3: rilegge la spesa per dire chi l'ha cambiata e come (tavola 17). */
+async function leggiConflitto(supabase: Supabase, id: string): Promise<Conflitto> {
+  const [spesa, ultima] = await Promise.all([
+    supabase.from('spese').select('importo_centesimi, data_eliminazione').eq('id', id).maybeSingle(),
+    supabase
+      .from('cronologia')
+      .select('autore')
+      .eq('tabella', 'spese')
+      .eq('riga_id', id)
+      .order('data_azione', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
+  return {
+    autore: ultima.data?.autore ?? null,
+    importoCentesimi: spesa.data?.importo_centesimi ?? null,
+    eliminata: !spesa.data || spesa.data.data_eliminazione !== null,
+  };
 }
 
 /** Nuova spesa (US-10, US-11, US-12). */
@@ -122,7 +158,7 @@ export async function creaSpesa(_prima: StatoSpesa, dati: FormData): Promise<Sta
     console.error('[spese] inserimento non riuscito', error.code, error.message);
     return { messaggio: ERRORE_IMPREVISTO };
   }
-  return { salvata: { avviso: await avvisoConSaldo(supabase, nucleo, 'Spesa salvata') } };
+  return { salvata: { avviso: await avvisoConSaldo(supabase, nucleo, 'Spesa salvata', letti.valori) } };
 }
 
 /**
@@ -155,8 +191,8 @@ export async function modificaSpesa(_prima: StatoSpesa, dati: FormData): Promise
     console.error('[spese] modifica non riuscita', error.code, error.message);
     return { messaggio: ERRORE_IMPREVISTO };
   }
-  if (!data.length) return { conflitto: true };
-  return { salvata: { avviso: await avvisoConSaldo(supabase, nucleo, 'Spesa modificata') } };
+  if (!data.length) return { conflitto: await leggiConflitto(supabase, id.data) };
+  return { salvata: { avviso: await avvisoConSaldo(supabase, nucleo, 'Spesa modificata', letti.valori) } };
 }
 
 /**
@@ -175,12 +211,12 @@ export async function eliminaSpesa(id: string): Promise<EsitoEliminazione> {
     .eq('id', id)
     .eq('nucleo_id', nucleo.id)
     .is('data_eliminazione', null)
-    .select('id');
+    .select('descrizione, importo_centesimi, categoria_id');
   if (error) {
     console.error('[spese] eliminazione non riuscita', error.code, error.message);
     return { messaggio: ERRORE_IMPREVISTO };
   }
   // Già nel Cestino (per esempio eliminata dall'altra persona): va bene lo stesso
   if (!data.length) return { avviso: 'La spesa era già nel Cestino' };
-  return { avviso: await avvisoConSaldo(supabase, nucleo, 'Spesa spostata nel Cestino') };
+  return { avviso: await avvisoConSaldo(supabase, nucleo, 'Spesa spostata nel Cestino', data[0]) };
 }

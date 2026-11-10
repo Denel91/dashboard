@@ -10,11 +10,11 @@ afterEach(cleanup);
 describe('EliminaSpesa (F5)', () => {
   it('chiede conferma prima di spostare nel Cestino', async () => {
     const elimina = vi.fn(async () => ({ avviso: 'Spesa spostata nel Cestino' }));
-    render(<EliminaSpesa elimina={elimina} dopo="/spese?mese=2026-11" />);
+    render(<EliminaSpesa elimina={elimina} dopo="/spese?mese=2026-11" riassunto="Pizzeria Da Gino · 38,00 €" />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Elimina' }));
     const finestra = await screen.findByRole('dialog', { name: 'Spostare nel Cestino?' });
-    expect(finestra.textContent).toContain('Potrai recuperarla per 30 giorni.');
+    expect(finestra.textContent).toContain('Pizzeria Da Gino · 38,00 €. Potrai recuperarla dal Cestino per 30 giorni. Nel frattempo non conta nel saldo.');
     expect(elimina).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole('button', { name: 'Sposta nel Cestino' }));
@@ -24,7 +24,7 @@ describe('EliminaSpesa (F5)', () => {
 
   it('Annulla chiude senza eliminare', async () => {
     const elimina = vi.fn(async () => ({}));
-    render(<EliminaSpesa elimina={elimina} dopo="/spese" />);
+    render(<EliminaSpesa elimina={elimina} dopo="/spese" riassunto="Esselunga · 47,30 €" />);
     fireEvent.click(screen.getByRole('button', { name: 'Elimina' }));
     fireEvent.click(await screen.findByRole('button', { name: 'Annulla' }));
     await vi.waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());

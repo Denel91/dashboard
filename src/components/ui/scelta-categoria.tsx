@@ -17,8 +17,9 @@ export type CategoriaScelta = { id: string; nome: string; icona: string };
 const CHIP =
   'inline-flex min-h-9 cursor-pointer select-none items-center gap-1.5 rounded-capsula px-3.5 py-1.5 ' +
   'text-sottotitolo outline-hidden transition duration-150 ' +
-  'bg-superficie-2 text-testo data-hovered:brightness-95 data-pressed:opacity-80 ' +
-  'data-selected:bg-accento data-selected:text-su-accento ' +
+  // Bianche col bordo sottile sullo sfondo grigio del modulo (tavola 06)
+  'bg-superficie text-testo ring-1 ring-inset ring-separatore data-hovered:brightness-95 data-pressed:opacity-80 ' +
+  'data-selected:bg-accento data-selected:text-su-accento data-selected:ring-0 ' +
   'data-focus-visible:outline-2 data-focus-visible:outline-solid data-focus-visible:outline-offset-2 data-focus-visible:outline-accento';
 
 export function SceltaCategoria({

@@ -6,7 +6,8 @@ import { etichetteSpesa, type GiornoDiSpese } from '@/lib/spese/elenco';
 
 // Elenco delle spese di un mese, raggruppato per giorno (tavola 05, US-13).
 // Ogni riga: icona della categoria, descrizione, importo e iniziale di chi
-// ha pagato; sotto, la categoria e le etichette dei casi particolari.
+// ha pagato; sotto, la categoria e le etichette dei casi particolari
+// ("per l’altra persona", "anticipo per Marco", "reso", "120 USD") in pillole.
 // Intestazione del giorno con il totale del giorno (anticipi esclusi).
 
 export type CategoriaInElenco = { nome: string; icona: string; colore: string };
@@ -44,13 +45,26 @@ export function ElencoSpese({
             const categoria = s.categoria_id ? categorie.get(s.categoria_id) : undefined;
             const chi = perId.get(s.pagata_da);
             const titolo = s.descrizione ?? categoria?.nome ?? 'Senza categoria';
-            const sotto = [s.descrizione ? categoria?.nome : null, ...etichetteSpesa(s)].filter(Boolean).join(' · ');
+            const nomeSotto = s.descrizione ? categoria?.nome : null;
+            const etichette = etichetteSpesa(s);
+            // Sotto il titolo la categoria e le etichette dei casi particolari, in pillole grigie (tavola 05)
+            const sotto =
+              nomeSotto || etichette.length ? (
+                <span className="flex items-center gap-1.5">
+                  {nomeSotto && <span className="truncate">{nomeSotto}</span>}
+                  {etichette.map((e) => (
+                    <span key={e} className="shrink-0 rounded-[0.375rem] bg-superficie-2 px-1.5 py-px text-didascalia text-testo-secondario">
+                      {e}
+                    </span>
+                  ))}
+                </span>
+              ) : undefined;
             return (
               <Riga
                 key={s.id}
                 icona={<IconaCategoria icona={categoria?.icona ?? 'tag'} colore={categoria?.colore ?? GRIGIO} />}
                 titolo={titolo}
-                sottotitolo={sotto || undefined}
+                sottotitolo={sotto}
                 href={hrefSpesa?.(s.id)}
                 scelta={s.id === scelta}
                 valore={

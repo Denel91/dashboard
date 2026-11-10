@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { anteprimaSpesa, testoSaldo, testoSpesaSalvata } from './testi';
+import { anteprimaSpesa, avvisoSpesa, testoSaldo } from './testi';
 
 // Gli spazi prima di € sono non separabili (formattaEuro)
 const n = (s: string) => s.replace(/ /g, ' ');
@@ -12,11 +12,28 @@ describe('testoSaldo', () => {
   });
 });
 
-describe('testoSpesaSalvata (F7)', () => {
-  it('aggiunge il saldo, o dice solo "Spesa salvata" se manca', () => {
-    expect(n(testoSpesaSalvata(4705, 'Simona'))).toBe('Spesa salvata · Simona ti deve 47,05 €');
-    expect(testoSpesaSalvata(null, 'Simona')).toBe('Spesa salvata');
-    expect(testoSpesaSalvata(100, null)).toBe('Spesa salvata');
+describe('avvisoSpesa (F7, tavola 19b)', () => {
+  const persone = { io: { nome: 'Daniele', persona: 'a' as const }, altra: { nome: 'Simona', persona: 'b' as const } };
+  const base = { titolo: 'Spesa salvata', descrizione: 'Esselunga', importoCentesimi: 4730, categoria: 'Spesa', persone };
+
+  it('tre righe: titolo, dettaglio e saldo con chi deve', () => {
+    const a = avvisoSpesa({ ...base, saldoCentesimi: 4705 });
+    expect(a.testo).toBe('Spesa salvata');
+    expect(n(a.dettaglio!)).toBe('Esselunga · 47,30 € · Spesa');
+    expect({ ...a.saldo, importo: n(a.saldo!.importo!) }).toEqual({ testo: 'Simona ti deve', importo: '47,05 €', nome: 'Simona', persona: 'b' });
+    expect(a.conferma).toBe(true);
+  });
+
+  it('se devo io, accanto c’è la mia iniziale; in pari, nessun importo', () => {
+    expect(avvisoSpesa({ ...base, saldoCentesimi: -100 }).saldo).toMatchObject({ testo: 'Devi a Simona', nome: 'Daniele', persona: 'a' });
+    expect(avvisoSpesa({ ...base, saldoCentesimi: 0 }).saldo).toEqual({ testo: 'Siete in pari' });
+  });
+
+  it('senza descrizione né categoria resta l’importo; senza saldo niente terza riga', () => {
+    const a = avvisoSpesa({ ...base, descrizione: null, categoria: null, saldoCentesimi: null });
+    expect(n(a.dettaglio!)).toBe('47,30 €');
+    expect(a.saldo).toBeUndefined();
+    expect(avvisoSpesa({ ...base, saldoCentesimi: 10, persone: { ...persone, altra: null } }).saldo).toBeUndefined();
   });
 });
 
