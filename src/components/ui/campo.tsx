@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { FieldError, Form, Input, Label, Text, TextField, type FormProps, type TextFieldProps } from 'react-aria-components';
+import { FieldError, Form, Input, Label, Text, TextArea, TextField, type FormProps, type TextFieldProps } from 'react-aria-components';
 
 // Campi e moduli (linee guida sezioni 3 e 10.1): TextField + Label + Input +
 // Text (nota) + FieldError di React Aria. L'errore resta collegato al suo
@@ -15,24 +15,30 @@ type PropsCampo = Omit<TextFieldProps, 'className' | 'children'> & {
   /** `pagina` (predefinito): campo `superficie`; `foglio`: campo `superficie-2`. */
   sfondo?: 'pagina' | 'foglio';
   inputMode?: React.HTMLAttributes<HTMLInputElement>['inputMode'];
+  /** Più di 1: campo su più righe (TextArea), per esempio la nota. */
+  righe?: number;
   className?: string;
 };
 
-export function CampoTesto({ etichetta, nota, segnaposto, sfondo = 'pagina', inputMode, className, ...props }: PropsCampo) {
+function stileCampo(sfondo: 'pagina' | 'foglio', altezza: string) {
+  return (
+    `${altezza} w-full rounded-campo px-4 text-corpo text-testo outline-hidden ring-1 ring-separatore transition ` +
+    'placeholder:text-testo-secondario/70 ' +
+    (sfondo === 'foglio' ? 'bg-superficie-2 ring-transparent ' : 'bg-superficie ') +
+    'data-focused:ring-2 data-focused:ring-accento data-invalid:ring-2 data-invalid:ring-pericolo ' +
+    'data-disabled:opacity-50'
+  );
+}
+
+export function CampoTesto({ etichetta, nota, segnaposto, sfondo = 'pagina', inputMode, righe = 1, className, ...props }: PropsCampo) {
   return (
     <TextField {...props} className={['flex flex-col gap-1.5', className].filter(Boolean).join(' ')}>
       <Label className="px-1 text-nota text-testo-secondario">{etichetta}</Label>
-      <Input
-        placeholder={segnaposto}
-        inputMode={inputMode}
-        className={
-          'h-12 w-full rounded-campo px-4 text-corpo text-testo outline-hidden ring-1 ring-separatore transition ' +
-          'placeholder:text-testo-secondario/70 ' +
-          (sfondo === 'foglio' ? 'bg-superficie-2 ring-transparent ' : 'bg-superficie ') +
-          'data-focused:ring-2 data-focused:ring-accento data-invalid:ring-2 data-invalid:ring-pericolo ' +
-          'data-disabled:opacity-50'
-        }
-      />
+      {righe > 1 ? (
+        <TextArea placeholder={segnaposto} rows={righe} className={stileCampo(sfondo, 'min-h-24 resize-none py-3')} />
+      ) : (
+        <Input placeholder={segnaposto} inputMode={inputMode} className={stileCampo(sfondo, 'h-12')} />
+      )}
       {nota && <Text slot="description" className="px-1 text-nota text-testo-secondario">{nota}</Text>}
       <FieldError className="px-1 text-nota text-pericolo" />
     </TextField>
