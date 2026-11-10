@@ -1,13 +1,12 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { hrefNuovaSpesa } from './pulsante-nuova-spesa';
 
 // Scorciatoia da tastiera (D21, linee guida sezione 9.5): N apre Nuova spesa.
 // Non scatta mentre si scrive in un campo, con Cmd/Ctrl/Alt premuti, né se è
 // già aperta una finestra (lì N è una lettera qualsiasi).
-
-const DESTINAZIONE = '/spese/nuova';
 
 export function deveAprireNuovaSpesa(e: KeyboardEvent) {
   if (e.defaultPrevented || e.repeat) return false;
@@ -21,17 +20,18 @@ export function deveAprireNuovaSpesa(e: KeyboardEvent) {
 
 export function ScorciatoiaNuovaSpesa() {
   const router = useRouter();
+  const destinazione = hrefNuovaSpesa(usePathname());
 
   useEffect(() => {
-    router.prefetch(DESTINAZIONE);
+    router.prefetch(destinazione);
     function premi(e: KeyboardEvent) {
       if (!deveAprireNuovaSpesa(e)) return;
       e.preventDefault();
-      router.push(DESTINAZIONE);
+      router.push(destinazione);
     }
     window.addEventListener('keydown', premi);
     return () => window.removeEventListener('keydown', premi);
-  }, [router]);
+  }, [router, destinazione]);
 
   return null;
 }

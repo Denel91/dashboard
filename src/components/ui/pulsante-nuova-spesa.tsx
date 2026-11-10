@@ -14,6 +14,16 @@ export const STILE_ELEMENTO_NOSTRO =
   'outline-hidden transition duration-150 ease-out active:opacity-80 ' +
   'focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-accento';
 
+/**
+ * Indirizzo di Nuova spesa che, dopo Salva o ✕, riporta alla pagina da cui
+ * si è partiti (?da=, letto con destinazioneSicura). Dalla Home basta il
+ * percorso semplice: la Home è già la destinazione predefinita.
+ */
+export function hrefNuovaSpesa(percorso: string) {
+  if (percorso === '/' || percorso.startsWith('/spese/nuova')) return '/spese/nuova';
+  return `/spese/nuova?da=${encodeURIComponent(percorso)}`;
+}
+
 export function PulsanteNuovaSpesa({ href = '/spese/nuova' }: { href?: string }) {
   return (
     <Link

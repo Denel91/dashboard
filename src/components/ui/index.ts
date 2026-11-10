@@ -8,7 +8,7 @@ export {
   PulsanteTesto,
   PulsanteDistruttivo,
 } from './pulsante';
-export { PulsanteNuovaSpesa } from './pulsante-nuova-spesa';
+export { PulsanteNuovaSpesa, hrefNuovaSpesa } from './pulsante-nuova-spesa';
 export { BarraInBasso } from './barra-in-basso';
 export { BarraLaterale, PAGINE_ALTRO } from './barra-laterale';
 export { SPAZIO_BARRA_IN_BASSO, SPAZIO_BARRA_LATERALE } from './spazi';

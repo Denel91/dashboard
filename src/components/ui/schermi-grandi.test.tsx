@@ -49,10 +49,16 @@ describe('Scorciatoia N', () => {
     return e;
   }
 
-  it('N apre Nuova spesa', () => {
+  it('N apre Nuova spesa, e dopo si torna alla pagina di partenza', () => {
+    percorso.attuale = '/';
+    const { unmount } = render(<ScorciatoiaNuovaSpesa />);
+    tasto({ key: 'n' });
+    expect(push).toHaveBeenLastCalledWith('/spese/nuova');
+    unmount();
+    percorso.attuale = '/spese';
     render(<ScorciatoiaNuovaSpesa />);
     tasto({ key: 'n' });
-    expect(push).toHaveBeenCalledWith('/spese/nuova');
+    expect(push).toHaveBeenLastCalledWith('/spese/nuova?da=%2Fspese');
   });
 
   it('non scatta in un campo di testo, con Cmd o Ctrl, né con una finestra aperta', () => {

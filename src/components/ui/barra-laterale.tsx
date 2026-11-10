@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { ArrowLeftRight, Ellipsis, HandCoins, History, House, Plus, ReceiptText, Trash2, Wallet, type LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { voceAttiva } from './barra-in-basso';
-import { STILE_ELEMENTO_NOSTRO } from './pulsante-nuova-spesa';
+import { STILE_ELEMENTO_NOSTRO, hrefNuovaSpesa } from './pulsante-nuova-spesa';
 
 // Barra laterale (D21 e D23, linee guida sezioni 9.2 e 9.8). Sostituisce la
 // barra in basso da 768 px:
@@ -68,7 +68,7 @@ export function BarraLaterale({ nomeNucleo, contatori = {}, profilo }: Props) {
 
       {/* ＋ / ＋ Nuova spesa (link, sezione 10.2) */}
       <Link
-        href="/spese/nuova"
+        href={hrefNuovaSpesa(pathname)}
         aria-label="Nuova spesa"
         title="Nuova spesa · N"
         className={
