@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ArrowLeftRight, Ellipsis, House, ReceiptText, type LucideIcon } from 'lucide-react';
-import { PulsanteNuovaSpesa, STILE_ELEMENTO_NOSTRO } from './pulsante-nuova-spesa';
+import { PulsanteNuovaSpesa, STILE_ELEMENTO_NOSTRO, hrefNuovaSpesa } from './pulsante-nuova-spesa';
 
 // Barra in basso (linee guida sezioni 2, 3 e 6): capsula galleggiante in
 // vetro, staccata dai bordi e sopra la barra di Safari, con il ＋ alla sua
@@ -58,7 +58,7 @@ export function BarraInBasso() {
             })}
           </ul>
         </nav>
-        <PulsanteNuovaSpesa />
+        <PulsanteNuovaSpesa href={hrefNuovaSpesa(pathname)} />
       </div>
     </div>
   );

@@ -68,3 +68,62 @@ describe('ModuloSpesa, invio', () => {
     expect((screen.getByRole('textbox', { name: 'Importo' }) as HTMLInputElement).value).toBe('47,30');
   });
 });
+
+describe('ModuloSpesa in Modifica spesa (tavola 07)', () => {
+  const INIZIALE = {
+    importoCentesimi: 3800,
+    pagataDa: SIMONA.id,
+    perAltraPersona: true,
+    categoriaId: 'c1',
+    dataSpesa: '2026-11-09',
+    descrizione: 'Pizzeria',
+    metodoPagamento: 'contanti' as const,
+    note: null,
+  };
+
+  it('riparte dai valori salvati, con "Altro" aperto se è compilato', () => {
+    render(
+      <ModuloSpesa
+        azione={vi.fn(async () => ({}))}
+        titolo="Modifica spesa"
+        membri={[IO, SIMONA]}
+        io={IO}
+        categorie={CATEGORIE}
+        oggi="2026-11-10"
+        dopo="/spese"
+        iniziale={INIZIALE}
+        nascosti={{ id: 'abc', data_modifica: '2026-11-09T10:00:00+00:00' }}
+        dettagli="Creata da Simona il 09/11/2026"
+      />,
+    );
+    expect((screen.getByRole('textbox', { name: 'Importo' }) as HTMLInputElement).value).toBe('38,00');
+    expect(screen.getByRole('radio', { name: /Simona/ })).toHaveProperty('checked', true);
+    expect(screen.getByRole('switch', { name: /Per l’altra persona/ })).toHaveProperty('checked', true);
+    expect((screen.getByLabelText('Data') as HTMLInputElement).value).toBe('2026-11-09');
+    expect(screen.getByRole('radio', { name: 'Spesa' }).getAttribute('aria-checked')).toBe('true');
+    expect(screen.getByRole('button', { name: /Altro/ }).getAttribute('aria-expanded')).toBe('true');
+    expect((screen.getByRole('textbox', { name: 'Descrizione' }) as HTMLInputElement).value).toBe('Pizzeria');
+    expect(screen.getByRole('radio', { name: 'Contanti' })).toHaveProperty('checked', true);
+    expect(screen.getByText('Creata da Simona il 09/11/2026')).toBeDefined();
+    expect(screen.getByText(/Dovrai a Simona 38,00/)).toBeDefined();
+    expect((document.querySelector('input[name=data_modifica]') as HTMLInputElement).value).toBe('2026-11-09T10:00:00+00:00');
+  });
+
+  it('F3: se la spesa è cambiata nel frattempo, chiede di ricaricare', async () => {
+    render(
+      <ModuloSpesa
+        azione={vi.fn(async () => ({ conflitto: true }))}
+        titolo="Modifica spesa"
+        membri={[IO, SIMONA]}
+        io={IO}
+        categorie={CATEGORIE}
+        oggi="2026-11-10"
+        dopo="/spese"
+        iniziale={INIZIALE}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Salva' }));
+    expect(await screen.findByText('La spesa è stata modificata, ricarica.')).toBeDefined();
+    expect(screen.getByRole('button', { name: 'Ricarica' })).toBeDefined();
+  });
+});
