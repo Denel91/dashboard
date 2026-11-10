@@ -32,7 +32,7 @@ export function ElencoRimborsi({
           {rimborsi.map((r, i) => (
             <li key={r.id} className="pl-4">
               <div
-                className={`flex min-h-14 items-center gap-3 py-2.5 pr-3 ${i > 0 ? 'border-t border-separatore' : ''} ${r.annullato ? 'text-testo-secondario' : ''}`}
+                className={`flex min-h-14 items-center gap-2 py-2.5 pr-3 ${i > 0 ? 'border-t border-separatore' : ''} ${r.annullato ? 'text-testo-secondario' : ''}`}
               >
                 <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                   <p className={`flex min-w-0 items-center gap-1.5 text-sottotitolo ${r.annullato ? 'line-through' : ''}`}>
@@ -43,7 +43,7 @@ export function ElencoRimborsi({
                     <span aria-hidden="true" className="flex min-w-0 items-center gap-1 overflow-hidden whitespace-nowrap">
                       <Iniziale nome={r.da.nome} persona={r.da.persona} dimensione="piccola" decorativa />
                       <span>{r.da.nome}</span>
-                      <ArrowRight className="mx-0.5 size-3.5 shrink-0" />
+                      <ArrowRight className="size-3.5 shrink-0" />
                       <Iniziale nome={r.a.nome} persona={r.a.persona} dimensione="piccola" decorativa />
                       <span>{r.a.nome}</span>
                     </span>
@@ -52,11 +52,11 @@ export function ElencoRimborsi({
                     {sottotitoloRimborso(r)}
                   </p>
                 </div>
-                <p className={`importo shrink-0 text-richiamo font-semibold ${r.annullato ? 'line-through' : ''}`}>
+                <p className={`importo shrink-0 text-sottotitolo font-semibold ${r.annullato ? 'line-through' : ''}`}>
                   {formattaEuro(r.importoCentesimi)}
                 </p>
                 {r.annullato ? (
-                  <span className="shrink-0 rounded-md bg-superficie-2 px-2 py-0.5 text-didascalia text-testo-secondario">
+                  <span className="shrink-0 rounded-capsula bg-superficie-2 px-2 py-0.5 text-didascalia text-testo-secondario">
                     Annullato
                   </span>
                 ) : (

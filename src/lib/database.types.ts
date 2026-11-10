@@ -318,6 +318,9 @@ isOneToOne: false
               "completo": boolean,"nome_invitante": string,"nome_nucleo": string
             }[]
                            },
+"annulla_rimborso":
+{ Args: { "p_rimborso_id": string }; Returns: boolean
+                           },
 "appartiene_al_nucleo":
 { Args: { "p_nucleo_id": string }; Returns: boolean
                            },
@@ -332,6 +335,9 @@ isOneToOne: false
                            },
 "ping":
 { Args: never; Returns: boolean
+                           },
+"registra_rimborso":
+{ Args: { "p_data_rimborso": string,"p_importo_centesimi": number,"p_nota"?: string,"p_nucleo_id": string,"p_saldo_atteso_centesimi": number }; Returns: string
                            }
           }
           Enums: {
