@@ -1,3 +1,5 @@
+import { Ellipsis } from 'lucide-react';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import {
@@ -53,13 +55,29 @@ async function BarraLateraleDelNucleo() {
     <BarraLaterale
       nomeNucleo={nucleo.nome}
       profilo={
-        <div className="flex items-center gap-2 rounded-capsula bg-superficie/60 p-2">
-          <Iniziale nome={nucleo.io.nome} persona={nucleo.io.persona} decorativa />
-          <div className="min-w-0">
+        // Il profilo apre Impostazioni (linee guida sezione 9.2)
+        <Link
+          href="/altro/impostazioni"
+          aria-label={`Impostazioni · ${nucleo.io.nome}, ${nucleo.email}`}
+          className={
+            'flex items-center gap-2 rounded-capsula bg-superficie/60 p-2 outline-hidden hover:bg-superficie-2/60 ' +
+            'focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-accento'
+          }
+        >
+          {/* Le iniziali dei due, il proprio nome e l'email, poi … (tavole C1–C3) */}
+          <span className="flex shrink-0 -space-x-2">
+            {nucleo.membri.map((m) => (
+              <span key={m.id} className="rounded-capsula ring-2 ring-superficie">
+                <Iniziale nome={m.nome} persona={m.persona} decorativa />
+              </span>
+            ))}
+          </span>
+          <div className="min-w-0 flex-1">
             <p className="truncate text-sottotitolo">{nucleo.io.nome}</p>
             <p className="truncate text-didascalia">{nucleo.email}</p>
           </div>
-        </div>
+          <Ellipsis aria-hidden="true" className="mr-1 size-4 shrink-0 text-testo-secondario" />
+        </Link>
       }
     />
   );
