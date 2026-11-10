@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { etichettaGiorno, limitiMese, meseDaParametro, meseVicino, nomeMese } from './date';
+import { dataBreve, etichettaGiorno, limitiMese, meseDaParametro, meseVicino, nomeMese } from './date';
 
 describe('mesi (tavola 05)', () => {
   it('legge ?mese= e ripiega sul mese di oggi', () => {
@@ -33,5 +33,12 @@ describe('etichettaGiorno', () => {
     expect(etichettaGiorno('2026-11-09', '2026-11-10')).toBe('ieri · lunedì 9 novembre');
     expect(etichettaGiorno('2026-11-03', '2026-11-10')).toBe('martedì 3 novembre');
     expect(etichettaGiorno('2025-12-31', '2026-01-01')).toBe('ieri · mercoledì 31 dicembre 2025');
+  });
+});
+
+describe('dataBreve', () => {
+  it('scrive gg/mm/aaaa nel fuso italiano', () => {
+    expect(dataBreve('2026-11-03T10:00:00+00:00')).toBe('03/11/2026');
+    expect(dataBreve('2026-11-03T23:30:00Z')).toBe('04/11/2026');
   });
 });

@@ -1,4 +1,4 @@
-import { cleanup, render, screen, within } from '@testing-library/react';
+import { cleanup, render, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { raggruppaPerGiorno, type SpesaInElenco } from '@/lib/spese/elenco';
 import { ElencoSpese } from './elenco-spese';

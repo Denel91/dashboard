@@ -76,3 +76,10 @@ export function etichettaGiorno(giorno: string, oggi: string): string {
   if (giorno === ieri.toISOString().slice(0, 10)) return `ieri · ${testo}`;
   return testo;
 }
+
+const fmtDataBreve = new Intl.DateTimeFormat('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: FUSO_ORARIO });
+
+/** Un istante (timestamptz) come gg/mm/aaaa nel fuso italiano (NF-03): "03/11/2026". */
+export function dataBreve(istante: string | Date): string {
+  return fmtDataBreve.format(typeof istante === 'string' ? new Date(istante) : istante);
+}

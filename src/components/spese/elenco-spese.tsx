@@ -18,11 +18,17 @@ export function ElencoSpese({
   categorie,
   membri,
   oggi,
+  hrefSpesa,
+  scelta,
 }: {
   giorni: GiornoDiSpese[];
   categorie: Map<string, CategoriaInElenco>;
   membri: Membro[];
   oggi: string;
+  /** Indirizzo di Modifica spesa per una riga. */
+  hrefSpesa?: (id: string) => string;
+  /** La spesa aperta accanto all'elenco, evidenziata (D21, tavola C2). */
+  scelta?: string;
 }) {
   const perId = new Map(membri.map((m) => [m.id, m]));
 
@@ -45,6 +51,8 @@ export function ElencoSpese({
                 icona={<IconaCategoria icona={categoria?.icona ?? 'tag'} colore={categoria?.colore ?? GRIGIO} />}
                 titolo={titolo}
                 sottotitolo={sotto || undefined}
+                href={hrefSpesa?.(s.id)}
+                scelta={s.id === scelta}
                 valore={
                   <span className="flex items-center gap-2">
                     <span className="importo text-testo">{formattaEuro(s.importo_centesimi)}</span>
