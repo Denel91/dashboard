@@ -5,17 +5,9 @@ import { useId, useState } from 'react';
 // Data della spesa (tavola 06, US-10, US-11): <input type="date"> NATIVO
 // (linee guida sezione 10.2). Su iPhone apre il selettore di iOS. Già su
 // oggi; accanto compare "oggi" finché resta la data di oggi.
-// "Oggi" lo calcola la pagina sul server, nel fuso italiano, e lo passa qui:
-// con cacheComponents un `new Date()` in un Client Component finirebbe nel
-// prerender, e a mezzanotte il server in UTC sarebbe ancora a ieri.
-
-export const FUSO_ORARIO = 'Europe/Rome';
-
-/** Data di oggi come AAAA-MM-GG nel fuso indicato (predefinito: Italia). */
-export function oggiIso(adesso: Date, fuso = FUSO_ORARIO) {
-  // en-CA scrive le date proprio come AAAA-MM-GG
-  return new Intl.DateTimeFormat('en-CA', { timeZone: fuso, year: 'numeric', month: '2-digit', day: '2-digit' }).format(adesso);
-}
+// "Oggi" lo calcola la pagina sul server con oggiIso() di src/lib/date.ts e
+// lo passa qui: con cacheComponents un `new Date()` in un Client Component
+// finirebbe nel prerender.
 
 export function CampoData({
   name,

@@ -42,8 +42,10 @@ export function SezioneEspandibile({
           </span>
         </Button>
       </Heading>
-      <DisclosurePanel className="flex flex-col gap-4 px-4 pb-4">
-        {children}
+      {/* Il margine sta dentro: da chiuso il pannello resta nel DOM (hidden),
+          e un padding sul pannello lascerebbe uno spazio vuoto */}
+      <DisclosurePanel>
+        <div className="flex flex-col gap-4 px-4 pb-4">{children}</div>
       </DisclosurePanel>
     </Disclosure>
   );

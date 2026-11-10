@@ -25,5 +25,5 @@ export { Interruttore } from './interruttore';
 export { IconaCategoria, SimboloCategoria } from './icona-categoria';
 export { SceltaCategoria, type CategoriaScelta } from './scelta-categoria';
 export { CampoImporto } from './campo-importo';
-export { CampoData, oggiIso } from './campo-data';
+export { CampoData } from './campo-data';
 export { SezioneEspandibile } from './sezione-espandibile';

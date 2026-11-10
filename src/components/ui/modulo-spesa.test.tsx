@@ -1,7 +1,8 @@
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { CATEGORIE_PREDEFINITE } from '@/lib/categorie';
-import { CampoData, oggiIso } from './campo-data';
+import { oggiIso } from '@/lib/date';
+import { CampoData } from './campo-data';
 import { CampoImporto } from './campo-importo';
 import { CampoTesto } from './campo';
 import { ControlloSegmentato } from './controllo-segmentato';
