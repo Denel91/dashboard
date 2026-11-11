@@ -220,6 +220,57 @@ body {
    sfocatura. Contrasti verificati nel caso peggiore (card sopra la macchia
    di colore più intensa dello sfondo): tutti i testi ≥ 4,7:1 in chiaro e
    ≥ 4,8:1 in scuro. Mai sotto i campi dei moduli né nelle finestre. */
+/* Variante `largo:` (tavole C2 e C3): il modulo della spesa dentro la
+   finestra al centro (da 768 px, data-aspetto="finestra") o nel riquadro
+   accanto all'elenco (da 1024 px, data-aspetto="riquadro") prende la
+   disposizione delle tavole per computer. Fuori da quei contenitori non fa
+   nulla, quindi il telefono resta come le tavole 06 e 07. */
+@custom-variant largo {
+  @media (width >= 48rem) {
+    [data-aspetto='finestra'] & {
+      @slot;
+    }
+  }
+  @media (width >= 64rem) {
+    [data-aspetto='riquadro'] & {
+      @slot;
+    }
+  }
+}
+
+/* Elenco delle spese da 1024 px (tavola C2): una sola card di vetro con i
+   giorni dentro, invece di una card per giorno */
+@media (min-width: 64rem) {
+  .elenco-in-una-card {
+    border-radius: var(--radius-card);
+    padding: 0.75rem 0.5rem;
+    background: color-mix(in srgb, var(--superficie) 80%, transparent);
+    -webkit-backdrop-filter: blur(40px) saturate(160%);
+    backdrop-filter: blur(40px) saturate(160%);
+    border: 1px solid var(--vetro-bordo);
+    box-shadow: 0 8px 32px rgb(0 0 0 / 0.06);
+  }
+  .elenco-in-una-card .vetro-card {
+    background: none;
+    border: 0;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border-radius: 0;
+    overflow: visible;
+  }
+  .elenco-in-una-card li > a {
+    border-radius: var(--radius-campo);
+  }
+}
+@media (min-width: 64rem) and (prefers-contrast: more) {
+  .elenco-in-una-card {
+    background: var(--superficie);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
 .vetro-card {
   background: var(--superficie);
 }

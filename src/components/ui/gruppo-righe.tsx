@@ -58,7 +58,7 @@ export function Riga({ icona, titolo, sottotitolo, valore, href, scelta }: Props
       {icona && <span className="flex shrink-0 items-center py-2.5">{icona}</span>}
       <span
         data-riga-testo=""
-        className="flex min-h-11 flex-1 items-center gap-3 border-t border-separatore py-2.5 pr-4"
+        className="flex min-h-11 min-w-0 flex-1 items-center gap-3 border-t border-separatore py-2.5 pr-4"
       >
         <span className="flex min-w-0 flex-1 flex-col">
           <span className="truncate text-corpo text-testo">{titolo}</span>

@@ -9,6 +9,9 @@ import { etichetteSpesa, type GiornoDiSpese } from '@/lib/spese/elenco';
 // ha pagato; sotto, la categoria e le etichette dei casi particolari
 // ("per l’altra persona", "anticipo per Marco", "reso", "120 USD") in pillole.
 // Intestazione del giorno con il totale del giorno (anticipi esclusi).
+// Da 1024 px (tavola C2) i giorni stanno in una sola card di vetro, e sotto
+// il titolo c'è anche chi ha pagato ("Spesa · Daniele") al posto
+// dell'iniziale a destra.
 
 export type CategoriaInElenco = { nome: string; icona: string; colore: string };
 
@@ -34,7 +37,7 @@ export function ElencoSpese({
   const perId = new Map(membri.map((m) => [m.id, m]));
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="elenco-in-una-card flex flex-col gap-6 lg:gap-4">
       {giorni.map((g) => (
         <GruppoRighe
           key={g.giorno}
@@ -49,9 +52,15 @@ export function ElencoSpese({
             const etichette = etichetteSpesa(s);
             // Sotto il titolo la categoria e le etichette dei casi particolari, in pillole grigie (tavola 05)
             const sotto =
-              nomeSotto || etichette.length ? (
+              nomeSotto || etichette.length || chi ? (
                 <span className="flex items-center gap-1.5">
                   {nomeSotto && <span className="truncate">{nomeSotto}</span>}
+                  {chi && (
+                    <span aria-hidden className="hidden shrink-0 lg:inline">
+                      {nomeSotto ? '· ' : ''}
+                      {chi.nome}
+                    </span>
+                  )}
                   {etichette.map((e) => (
                     <span key={e} className="shrink-0 rounded-[0.375rem] bg-superficie-2 px-1.5 py-px text-didascalia text-testo-secondario">
                       {e}
@@ -72,7 +81,9 @@ export function ElencoSpese({
                     <span className="importo text-testo">{formattaEuro(s.importo_centesimi)}</span>
                     {chi && (
                       <>
-                        <Iniziale nome={chi.nome} persona={chi.persona} dimensione="piccola" decorativa />
+                        <span className="lg:hidden">
+                          <Iniziale nome={chi.nome} persona={chi.persona} dimensione="piccola" decorativa />
+                        </span>
                         <span className="sr-only">pagata da {chi.sonoIo ? 'te' : chi.nome}</span>
                       </>
                     )}

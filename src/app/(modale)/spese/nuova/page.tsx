@@ -46,6 +46,7 @@ async function Contenuto({ searchParams }: Pick<PageProps<'/spese/nuova'>, 'sear
     <ModuloSpesa
       azione={creaSpesa}
       titolo="Nuova spesa"
+      aspetto="finestra"
       membri={nucleo.membri}
       io={nucleo.io}
       categorie={categorie}

@@ -35,11 +35,18 @@ export function SezioneEspandibile({
           aria-label={riassunto ? `${titolo}: ${riassunto}` : titolo}
           className={
             'ml-auto flex h-11 shrink-0 cursor-pointer items-center gap-1 rounded-capsula bg-superficie px-4 text-corpo font-semibold text-testo outline-hidden ' +
+            // Tavole C2 e C3: riga intera "Altro … Descrizione, pagamento, nota ⌄"
+            'largo:ml-0 largo:w-full largo:rounded-campo largo:bg-superficie-2 largo:font-normal ' +
             'data-hovered:brightness-95 data-pressed:opacity-80 ' +
             'data-focus-visible:outline-2 data-focus-visible:outline-solid data-focus-visible:outline-offset-2 data-focus-visible:outline-accento'
           }
         >
           {titolo}
+          {riassunto && (
+            <span aria-hidden className="ml-auto hidden text-sottotitolo text-testo-secondario largo:inline">
+              {riassunto}
+            </span>
+          )}
           <ChevronDown
             aria-hidden
             className="size-4 transition-transform duration-200 group-data-expanded:rotate-180 motion-reduce:transition-none"
@@ -49,7 +56,7 @@ export function SezioneEspandibile({
       {/* Il margine sta dentro: da chiuso il pannello resta nel DOM (hidden),
           e un padding sul pannello lascerebbe uno spazio vuoto */}
       <DisclosurePanel>
-        <div className="flex flex-col gap-4 rounded-card bg-superficie p-4">{children}</div>
+        <div className="flex flex-col gap-4 rounded-card bg-superficie p-4 largo:rounded-none largo:bg-transparent largo:p-0">{children}</div>
       </DisclosurePanel>
     </Disclosure>
   );

@@ -8,8 +8,8 @@ import { EliminaSpesa } from '@/components/spese/elimina-spesa';
 import { ElencoSpese, type CategoriaInElenco } from '@/components/spese/elenco-spese';
 import { ModuloSpesa } from '@/components/spese/modulo-spesa';
 import { SceltaMese } from '@/components/spese/scelta-mese';
-import { hrefNuovaSpesa } from '@/components/ui';
-import { dataEOra, limitiMese, meseDaParametro, meseEAnno, mesiFinoA, nomeMese, oggiIso, type Mese } from '@/lib/date';
+import { Iniziale, hrefNuovaSpesa } from '@/components/ui';
+import { dataBreve, dataEOra, limitiMese, meseDaParametro, meseEAnno, mesiFinoA, nomeMese, oggiIso, type Mese } from '@/lib/date';
 import { formattaEuro } from '@/lib/money';
 import { leggiNucleoCorrente } from '@/lib/nucleo/corrente';
 import { raggruppaPerGiorno, riepilogoMese, type SpesaInElenco } from '@/lib/spese/elenco';
@@ -79,46 +79,53 @@ async function Contenuto({ searchParams }: Pick<PageProps<'/spese'>, 'searchPara
 
   const dettaglio = idScelta ? await leggiSpesa(supabase, nucleo.id, idScelta) : null;
 
-  const colonnaElenco = (
-    <div className="flex flex-col gap-6">
+  // Intestazione: sul telefono titolo, nome del nucleo, mese e riepilogo
+  // (tavola 05); da 1024 px titolo con "Novembre · 3 spese · 98,60 €" sotto e
+  // il mese a destra, sopra lista e dettaglio (tavola C2)
+  const intestazione = (
+    <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
       <header className="flex flex-col gap-1">
         <h1 className="text-titolo-grande font-bold">Spese</h1>
-        <p className="text-sottotitolo text-testo-secondario">{nucleo.nome}</p>
+        <p className="text-sottotitolo text-testo-secondario lg:hidden">{nucleo.nome}</p>
+        <p className="hidden text-sottotitolo text-testo-secondario first-letter:uppercase lg:block">
+          {nome} · {numero === 1 ? '1 spesa' : `${numero} spese`} · <span className="importo">{formattaEuro(totaleCentesimi)}</span>
+        </p>
       </header>
 
       <SceltaMese mese={mese} mesi={scelteMese(mese, oggi)} />
 
       {numero > 0 && (
-        <p className="-mt-3 px-1 text-nota text-testo-secondario">
+        <p className="-mt-3 px-1 text-nota text-testo-secondario lg:hidden">
           <span className="sr-only">Totale {formattaEuro(totaleCentesimi)}. </span>
           {numero === 1 ? '1 spesa' : `${numero} spese`} · {meseEAnno(mese)} · i totali del giorno escludono gli anticipi per
           terzi
         </p>
       )}
-
-      {giorni.length > 0 ? (
-        <ElencoSpese
-          giorni={giorni}
-          categorie={perCategoria}
-          membri={nucleo.membri}
-          oggi={oggi}
-          hrefSpesa={(id) => `${indirizzoElenco}&spesa=${id}`}
-          scelta={idScelta ?? undefined}
-        />
-      ) : (
-        // Stato vuoto (tavola 15a): un messaggio e un'azione, mai una pagina vuota
-        <div className="flex flex-col items-center gap-2 py-16 text-center">
-          <p className="text-corpo text-testo-secondario">Nessuna spesa a {nome}.</p>
-          <Link
-            href={hrefNuovaSpesa('/spese')}
-            className="rounded-capsula px-3 py-2 text-corpo text-accento outline-hidden hover:bg-accento-tenue focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-accento"
-          >
-            Aggiungi la prima
-          </Link>
-        </div>
-      )}
     </div>
   );
+
+  const colonnaElenco =
+    giorni.length > 0 ? (
+      <ElencoSpese
+        giorni={giorni}
+        categorie={perCategoria}
+        membri={nucleo.membri}
+        oggi={oggi}
+        hrefSpesa={(id) => `${indirizzoElenco}&spesa=${id}`}
+        scelta={idScelta ?? undefined}
+      />
+    ) : (
+      // Stato vuoto (tavola 15a): un messaggio e un'azione, mai una pagina vuota
+      <div className="flex flex-col items-center gap-2 py-16 text-center">
+        <p className="text-corpo text-testo-secondario">Nessuna spesa a {nome}.</p>
+        <Link
+          href={hrefNuovaSpesa('/spese')}
+          className="rounded-capsula px-3 py-2 text-corpo text-accento outline-hidden hover:bg-accento-tenue focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-accento"
+        >
+          Aggiungi la prima
+        </Link>
+      </div>
+    );
 
   // Categorie per il modulo: quelle attive, più quella della spesa se è archiviata
   const perModulo = (categorie.data ?? [])
@@ -127,16 +134,17 @@ async function Contenuto({ searchParams }: Pick<PageProps<'/spese'>, 'searchPara
   const autore = dettaglio && nucleo.membri.find((m) => m.id === dettaglio.autore);
 
   return (
-    <div className="lg:grid lg:grid-cols-[420px_1fr] lg:items-start lg:gap-6">
+    <div className="lg:grid lg:grid-cols-2 lg:items-start xl:grid-cols-[420px_minmax(0,1fr)] lg:gap-x-6 lg:gap-y-5">
       {/* Sotto 1024 px, con una spesa aperta l'elenco resta sotto, coperto */}
-      <div className={idScelta ? 'hidden lg:block' : undefined}>{colonnaElenco}</div>
+      <div className={idScelta ? 'hidden lg:col-span-2 lg:block' : 'lg:col-span-2'}>{intestazione}</div>
+      <div className={idScelta ? 'hidden lg:block' : 'mt-6 lg:mt-0'}>{colonnaElenco}</div>
 
       {idScelta ? (
         <section
           aria-label="Modifica spesa"
           className={
             'fixed inset-0 z-50 overflow-y-auto bg-superficie ' +
-            'lg:sticky lg:top-8 lg:z-auto lg:max-h-[calc(100dvh-4rem)] lg:rounded-card lg:shadow-lg'
+            'lg:sticky lg:inset-auto lg:top-8 lg:z-auto lg:max-h-[calc(100dvh-4rem)] lg:rounded-card lg:shadow-lg lg:ring-1 lg:ring-vetro-bordo'
           }
         >
           {dettaglio ? (
@@ -168,7 +176,21 @@ async function Contenuto({ searchParams }: Pick<PageProps<'/spese'>, 'searchPara
                   riassunto={`${dettaglio.descrizione ?? perCategoria.get(dettaglio.categoria_id ?? '')?.nome ?? 'Senza categoria'} · ${formattaEuro(dettaglio.importo_centesimi)}`}
                 />
               }
-              dettagli={`Creata ${autore ? `da ${autore.sonoIo ? 'te' : autore.nome} ` : ''}il ${dataEOra(dettaglio.data_creazione)}`}
+              aspetto="riquadro"
+              dettagli={
+                <>
+                  {autore && (
+                    <span className="hidden largo:inline-flex">
+                      <Iniziale nome={autore.nome} persona={autore.persona} dimensione="piccola" decorativa />
+                    </span>
+                  )}
+                  <span>
+                    Creata {autore ? `da ${autore.sonoIo ? 'te' : autore.nome} ` : ''}il {dataBreve(dettaglio.data_creazione)}
+                    {/* L'ora c'è sul telefono (tavola 07), non nel riquadro (C2) */}
+                    <span className="largo:hidden"> alle {ora(dettaglio.data_creazione)}</span>
+                  </span>
+                </>
+              }
             />
           ) : (
             <SpesaNonTrovata dopo={indirizzoElenco} />
@@ -184,6 +206,11 @@ async function Contenuto({ searchParams }: Pick<PageProps<'/spese'>, 'searchPara
 }
 
 const METODI = ['carta', 'contanti', 'bonifico'] as const;
+
+/** "21:30" di una data e ora: la parte dopo "alle" di dataEOra(). */
+function ora(istante: string) {
+  return dataEOra(istante).split(' alle ')[1] ?? '';
+}
 
 const RE_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 

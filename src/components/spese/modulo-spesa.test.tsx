@@ -14,18 +14,27 @@ const CATEGORIE = [{ id: 'c1', nome: 'Spesa', icona: 'shopping-cart' }];
 function monta(membri = [IO, SIMONA]) {
   const azione = vi.fn(async () => ({}));
   render(
-    <ModuloSpesa azione={azione} titolo="Nuova spesa" membri={membri} io={IO} categorie={CATEGORIE} oggi="2026-11-10" dopo="/" />,
+    <ModuloSpesa aspetto="finestra" azione={azione} titolo="Nuova spesa" membri={membri} io={IO} categorie={CATEGORIE} oggi="2026-11-10" dopo="/" />,
   );
   return azione;
 }
 
 describe('ModuloSpesa (tavola 06)', () => {
+  it('la data accanto ad "Altro" (telefono) e quella accanto a Chi ha pagato (C3) restano uguali', () => {
+    monta();
+    const [computer, telefono] = screen.getAllByLabelText(/^Data/) as HTMLInputElement[];
+    fireEvent.change(computer, { target: { value: '2026-11-08' } });
+    expect(telefono.value).toBe('2026-11-08');
+    fireEvent.change(telefono, { target: { value: '2026-11-07' } });
+    expect(computer.value).toBe('2026-11-07');
+  });
+
   it('parte da oggi, pagata da me, a metà, con il titolo al centro e ✕', () => {
     monta();
     expect(screen.getByRole('heading', { name: 'Nuova spesa' })).toBeDefined();
     expect(screen.getByRole('link', { name: 'Chiudi' }).getAttribute('href')).toBe('/');
-    expect((screen.getByLabelText(/^Data/) as HTMLInputElement).value).toBe('2026-11-10');
-    expect(screen.getByRole('radio', { name: /Tu · Simona/ })).toBeDefined();
+    expect((screen.getAllByLabelText(/^Data/)[0] as HTMLInputElement).value).toBe('2026-11-10');
+    expect(screen.getByRole('radio', { name: /Tu ·\s*Simona/ })).toBeDefined();
     expect(screen.getByRole('radio', { name: /Io/ })).toHaveProperty('checked', true);
     expect(screen.getByRole('switch', { name: /Per l’altra persona/ })).toHaveProperty('checked', false);
   });
@@ -88,6 +97,7 @@ describe('ModuloSpesa in Modifica spesa (tavola 07)', () => {
   it('riparte dai valori salvati, con "Altro" aperto se è compilato', () => {
     render(
       <ModuloSpesa
+        aspetto="finestra"
         azione={vi.fn(async () => ({}))}
         titolo="Modifica spesa"
         membri={[IO, SIMONA]}
@@ -103,7 +113,7 @@ describe('ModuloSpesa in Modifica spesa (tavola 07)', () => {
     expect((screen.getByRole('textbox', { name: 'Importo' }) as HTMLInputElement).value).toBe('38,00');
     expect(screen.getByRole('radio', { name: /Simona/ })).toHaveProperty('checked', true);
     expect(screen.getByRole('switch', { name: /Per l’altra persona/ })).toHaveProperty('checked', true);
-    expect((screen.getByLabelText(/^Data/) as HTMLInputElement).value).toBe('2026-11-09');
+    expect((screen.getAllByLabelText(/^Data/)[0] as HTMLInputElement).value).toBe('2026-11-09');
     expect(screen.getByText('Ieri · 09/11/2026')).toBeDefined();
     expect(screen.getByRole('radio', { name: 'Spesa' }).getAttribute('aria-checked')).toBe('true');
     expect(screen.getByRole('button', { name: /Altro/ }).getAttribute('aria-expanded')).toBe('true');
@@ -117,6 +127,7 @@ describe('ModuloSpesa in Modifica spesa (tavola 07)', () => {
   it('F3: se Simona ha cambiato la spesa nel frattempo, un foglio chiede di ricaricare (tavola 17)', async () => {
     render(
       <ModuloSpesa
+        aspetto="finestra"
         azione={vi.fn(async () => ({ conflitto: { autore: SIMONA.id, importoCentesimi: 4100, eliminata: false } }))}
         titolo="Modifica spesa"
         membri={[IO, SIMONA]}
@@ -139,6 +150,7 @@ describe('ModuloSpesa in Modifica spesa (tavola 07)', () => {
   it('F3: Annulla chiude il foglio e lascia le modifiche', async () => {
     render(
       <ModuloSpesa
+        aspetto="finestra"
         azione={vi.fn(async () => ({ conflitto: { autore: null, importoCentesimi: null, eliminata: true } }))}
         titolo="Modifica spesa"
         membri={[IO, SIMONA]}
