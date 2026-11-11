@@ -3,7 +3,7 @@
 import { RefreshCw, X } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { startTransition, useActionState, useEffect, useState, type ReactNode } from 'react';
+import { startTransition, useActionState, useCallback, useEffect, useLayoutEffect, useRef, useState, type ComponentProps, type ReactNode } from 'react';
 import type { Conflitto, StatoSpesa } from '@/app/actions/spese';
 import {
   CampoData,
@@ -55,7 +55,25 @@ export type ValoriSpesa = {
   note: string | null;
 };
 
-export function ModuloSpesa({
+/**
+ * Con cacheComponents Next.js 16 non smonta la pagina quando si esce: la
+ * nasconde con <Activity> e ne conserva lo stato (guida "Preserving UI
+ * state"). Per Nuova spesa voleva dire ritrovare, alla visita dopo, il
+ * modulo già salvato, con l'avviso e il ritorno indietro che ripartivano e
+ * il modulo bloccato. Qui ogni volta che si esce dalla pagina (Salva,
+ * Annulla, ✕, Esc, un link) il modulo riparte da capo con una nuova `key`:
+ * ogni Nuova spesa comincia vuota, come chiede la guida per i moduli "nuovo
+ * elemento". Modifica spesa riparte comunque dai valori salvati (la pagina
+ * le dà una `key` con data_modifica).
+ */
+export function ModuloSpesa(props: Omit<ComponentProps<typeof ModuloSpesaUnGiro>, 'ricomincia'>) {
+  const [giro, setGiro] = useState(0);
+  // Stabile: l'effetto che la usa deve partire solo quando la pagina si nasconde
+  const ricomincia = useCallback(() => setGiro((g) => g + 1), []);
+  return <ModuloSpesaUnGiro key={giro} {...props} ricomincia={ricomincia} />;
+}
+
+function ModuloSpesaUnGiro({
   azione,
   titolo,
   membri,
@@ -68,6 +86,7 @@ export function ModuloSpesa({
   eliminazione,
   dettagli,
   aspetto,
+  ricomincia,
 }: {
   azione: Azione;
   titolo: string;
@@ -88,6 +107,8 @@ export function ModuloSpesa({
   dettagli?: ReactNode;
   /** Dove sta sul computer: finestra al centro (C3) o riquadro accanto all'elenco (C2). */
   aspetto: 'finestra' | 'riquadro';
+  /** Dopo un salvataggio, alla prossima volta che la pagina si nasconde: modulo nuovo. */
+  ricomincia: () => void;
 }) {
   const router = useRouter();
   const [stato, invia, inCorso] = useActionState(azione, {});
@@ -106,13 +127,21 @@ export function ModuloSpesa({
     ? anteprimaSpesa(euroInCentesimi(importo), pagataDa === io.id, perAltra ? 'per_altra_persona' : 'a_meta', altra.nome)
     : null;
 
-  // Salvata: avviso F7 e ritorno alla pagina di prima, con i dati aggiornati
+  // Salvata: avviso F7 e ritorno alla pagina di prima, con i dati aggiornati.
+  // Una sola volta per risposta: quando Activity rimostra la pagina gli
+  // effetti ripartono, e senza il controllo l'avviso e il ritorno si ripeterebbero
+  const gestita = useRef<StatoSpesa | null>(null);
   useEffect(() => {
-    if (!stato.salvata) return;
+    if (!stato.salvata || gestita.current === stato) return;
+    gestita.current = stato;
     mostraAvviso(stato.salvata.avviso);
     router.replace(dopo);
     router.refresh();
   }, [stato, dopo, router]);
+
+  // Quando la pagina viene nascosta (o smontata) si riparte da un modulo
+  // vuoto (guida "Preserving UI state": pulizia in useLayoutEffect)
+  useLayoutEffect(() => () => ricomincia(), [ricomincia]);
 
   // Esc chiude, come le finestre (linee guida, sezione 9.5)
   useEffect(() => {
