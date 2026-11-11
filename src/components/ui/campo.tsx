@@ -24,7 +24,7 @@ function stileCampo(sfondo: 'pagina' | 'foglio', altezza: string) {
   return (
     `${altezza} w-full rounded-campo px-4 text-corpo text-testo outline-hidden ring-1 ring-separatore transition ` +
     'placeholder:text-testo-secondario/70 ' +
-    (sfondo === 'foglio' ? 'bg-superficie-2 ring-transparent ' : 'bg-superficie ') +
+    (sfondo === 'foglio' ? 'bg-superficie-2 ring-transparent ' : 'bg-superficie largo:bg-superficie-2 largo:ring-transparent ') +
     'data-focused:ring-2 data-focused:ring-accento data-invalid:ring-2 data-invalid:ring-pericolo ' +
     'data-disabled:opacity-50'
   );

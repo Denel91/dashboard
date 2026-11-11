@@ -19,6 +19,8 @@ const CHIP =
   'text-sottotitolo outline-hidden transition duration-150 ' +
   // Bianche col bordo sottile sullo sfondo grigio del modulo (tavola 06)
   'bg-superficie text-testo ring-1 ring-inset ring-separatore data-hovered:brightness-95 data-pressed:opacity-80 ' +
+  // Grigie senza bordo sul bianco della finestra (tavole C2 e C3)
+  'largo:bg-superficie-2 largo:ring-0 largo:data-selected:bg-accento ' +
   'data-selected:bg-accento data-selected:text-su-accento data-selected:ring-0 ' +
   'data-focus-visible:outline-2 data-focus-visible:outline-solid data-focus-visible:outline-offset-2 data-focus-visible:outline-accento';
 

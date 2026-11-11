@@ -38,14 +38,15 @@ export function Interruttore({
       isDisabled={isDisabled}
       className={
         'group flex min-h-12 cursor-pointer select-none items-center justify-between gap-4 rounded-campo px-4 py-2 ' +
-        (sfondo === 'foglio' ? 'bg-superficie ' : 'bg-superficie-2 ') +
+        (sfondo === 'foglio' ? 'bg-superficie largo:bg-superficie-2 ' : 'bg-superficie-2 ') +
         'outline-hidden data-disabled:cursor-default data-disabled:opacity-40 ' +
         'data-focus-visible:outline-2 data-focus-visible:outline-solid data-focus-visible:outline-offset-2 data-focus-visible:outline-accento'
       }
     >
       <span className="flex flex-col">
         <span className="text-corpo text-testo">{children}</span>
-        {nota && <span className="text-nota text-testo-secondario">{nota}</span>}
+        {/* Nelle tavole C2 e C3 la riga è senza nota */}
+        {nota && <span className="text-nota text-testo-secondario largo:hidden">{nota}</span>}
       </span>
       <span
         aria-hidden

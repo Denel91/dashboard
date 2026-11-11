@@ -45,7 +45,7 @@ export function EliminaSpesa({
   return (
     <ApriFoglio>
       <PulsanteDistruttivo className="gap-1.5 px-3 font-semibold">
-        <Trash2 aria-hidden className="size-4.5" />
+        <Trash2 aria-hidden className="size-4.5 largo:hidden" />
         Elimina
       </PulsanteDistruttivo>
       <Foglio

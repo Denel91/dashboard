@@ -17,7 +17,8 @@ export function CampoImporto({
   const campo = useRef<HTMLInputElement>(null);
   return (
     <TextField {...props} className="flex flex-col items-center gap-1">
-      <Label className="sr-only">Importo</Label>
+      {/* Nelle tavole C2 e C3 l'etichetta si vede, sopra l'importo senza card */}
+      <Label className="sr-only largo:not-sr-only largo:text-nota largo:text-testo-secondario">Importo</Label>
       <div
         onMouseDown={(e) => {
           if (e.target !== campo.current) {
@@ -27,7 +28,8 @@ export function CampoImporto({
         }}
         className={
           'flex w-full cursor-text items-baseline justify-center gap-1 rounded-card border-2 border-transparent bg-superficie px-4 py-3 ' +
-          'focus-within:border-accento has-data-invalid:border-pericolo'
+          'focus-within:border-accento has-data-invalid:border-pericolo ' +
+          'largo:bg-transparent largo:py-0 largo:focus-within:border-transparent'
         }
       >
         <Input
@@ -46,7 +48,7 @@ export function CampoImporto({
             'placeholder:text-testo-secondario/50 data-invalid:text-pericolo'
           }
         />
-        <span aria-hidden className="text-importo font-normal text-testo-secondario/70">
+        <span aria-hidden className="text-importo font-normal text-testo-secondario/70 largo:font-bold largo:text-testo">
           €
         </span>
       </div>
