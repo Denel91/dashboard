@@ -1,4 +1,5 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { Activity } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ModuloSpesa } from './modulo-spesa';
 
@@ -166,5 +167,63 @@ describe('ModuloSpesa in Modifica spesa (tavola 07)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Annulla' }));
     await vi.waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect((screen.getByRole('textbox', { name: 'Importo' }) as HTMLInputElement).value).toBe('38,00');
+  });
+});
+
+describe('ModuloSpesa, pagina tenuta da Next.js con Activity (cacheComponents)', () => {
+  const salvata = { salvata: { avviso: { testo: 'Spesa salvata' } } };
+  const props = { aspetto: 'finestra' as const, titolo: 'Nuova spesa', membri: [IO, SIMONA], io: IO, categorie: CATEGORIE, oggi: '2026-11-10', dopo: '/' };
+
+  it('dopo un salvataggio, tornando su Nuova spesa il modulo è vuoto e non rifà avviso e ritorno', async () => {
+    router.replace.mockClear();
+    const azione = vi.fn(async () => salvata as never);
+    const { rerender } = render(
+      <Activity mode="visible">
+        <ModuloSpesa {...props} azione={azione} />
+      </Activity>,
+    );
+    fireEvent.change(screen.getByRole('textbox', { name: 'Importo' }), { target: { value: '50' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Salva' }));
+    await vi.waitFor(() => expect(router.replace).toHaveBeenCalledTimes(1));
+
+    // Next.js nasconde la pagina, poi la rimostra alla visita dopo
+    rerender(
+      <Activity mode="hidden">
+        <ModuloSpesa {...props} azione={azione} />
+      </Activity>,
+    );
+    await act(async () => {});
+    rerender(
+      <Activity mode="visible">
+        <ModuloSpesa {...props} azione={azione} />
+      </Activity>,
+    );
+    await act(async () => {});
+
+    expect((screen.getByRole('textbox', { name: 'Importo' }) as HTMLInputElement).value).toBe('');
+    expect(router.replace).toHaveBeenCalledTimes(1);
+  });
+
+  it('anche una bozza lasciata con Annulla o ✕ riparte vuota', async () => {
+    const azione = vi.fn(async () => ({}));
+    const { rerender } = render(
+      <Activity mode="visible">
+        <ModuloSpesa {...props} azione={azione} />
+      </Activity>,
+    );
+    fireEvent.change(screen.getByRole('textbox', { name: 'Importo' }), { target: { value: '12,50' } });
+    rerender(
+      <Activity mode="hidden">
+        <ModuloSpesa {...props} azione={azione} />
+      </Activity>,
+    );
+    await act(async () => {});
+    rerender(
+      <Activity mode="visible">
+        <ModuloSpesa {...props} azione={azione} />
+      </Activity>,
+    );
+    await act(async () => {});
+    expect((screen.getByRole('textbox', { name: 'Importo' }) as HTMLInputElement).value).toBe('');
   });
 });
