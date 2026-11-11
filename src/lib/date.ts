@@ -121,3 +121,23 @@ export function mesiFinoA(mese: Mese, quanti: number): Mese[] {
 export function meseEAnno(mese: Mese): string {
   return fmtMeseAnno.format(new Date(`${mese}-01T00:00:00Z`));
 }
+
+// --- Intestazione della Home sul computer (D23, sezione 9.8) ---------------
+
+const fmtOraNumero = new Intl.DateTimeFormat('it-IT', { hour: 'numeric', hourCycle: 'h23', timeZone: FUSO_ORARIO });
+
+/** "Buongiorno" dalle 5 alle 12, "Buon pomeriggio" fino alle 18, poi "Buonasera" (ora italiana). */
+export function saluto(adesso: Date): string {
+  const ora = Number(fmtOraNumero.format(adesso));
+  if (ora >= 5 && ora < 12) return 'Buongiorno';
+  if (ora >= 12 && ora < 18) return 'Buon pomeriggio';
+  return 'Buonasera';
+}
+
+const fmtDataEstesa = new Intl.DateTimeFormat('it-IT', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
+
+/** Una data AAAA-MM-GG per esteso, con l'iniziale maiuscola: "Martedì 10 novembre". */
+export function dataEstesa(giorno: string): string {
+  const t = fmtDataEstesa.format(new Date(`${giorno}T00:00:00Z`));
+  return t.charAt(0).toLocaleUpperCase('it-IT') + t.slice(1);
+}
