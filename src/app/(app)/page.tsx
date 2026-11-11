@@ -2,10 +2,12 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
 import { Suspense } from 'react';
-import { ArrowUpRight, ChevronRight, Inbox, Plus, ReceiptText, ShoppingCart, Wallet } from 'lucide-react';
-import { AzioneLink, Confronto, Riquadro, UltimeSpese } from '@/components/home/riquadri';
+import { ArrowLeftRight, ArrowUpRight, ChevronRight, Inbox, Plus, ReceiptText, ShoppingCart, Wallet } from 'lucide-react';
+import { registraRimborso } from '@/app/actions/rimborsi';
+import { AzioneLink, Confronto, ContenutoAzione, Riquadro, UltimeSpese, stileAzione } from '@/components/home/riquadri';
 import { CardSaldo } from '@/components/saldo/card-saldo';
 import { CardSaldoComputer, stiliPulsantiCard } from '@/components/saldo/card-saldo-computer';
+import { SegnaComeSaldato } from '@/components/saldo/segna-come-saldato';
 import { IconaCategoria, Iniziale, hrefNuovaSpesa } from '@/components/ui';
 import { dataEstesa, limitiMese, meseVicino, nomeMese, oggiIso, saluto, type Mese } from '@/lib/date';
 import {
@@ -210,10 +212,21 @@ async function Contenuto() {
             Invita l’altra persona
           </Link>
         ) : (
-          <Link href="/saldo" className={pulsanti.bordo}>
-            Vai al saldo
-            <ArrowUpRight aria-hidden="true" className="size-4" />
-          </Link>
+          <>
+            {stato.tipo === 'debito' && altra && (
+              <SegnaComeSaldato
+                azione={registraRimborso}
+                saldoCentesimi={stato.ioDevo ? -stato.importoCentesimi : stato.importoCentesimi}
+                io={nucleo.io}
+                altra={altra}
+                pulsante={{ className: pulsanti.pieno, contenuto: 'Segna come saldato' }}
+              />
+            )}
+            <Link href="/saldo" className={pulsanti.bordo}>
+              Vai al saldo
+              <ArrowUpRight aria-hidden="true" className="size-4" />
+            </Link>
+          </>
         )}
       </CardSaldoComputer>
 
@@ -250,9 +263,27 @@ async function Contenuto() {
         />
       </div>
 
-      {/* Azioni rapide (C1): Segna come saldato con US-31, le altre con le loro storie */}
+      {/* Azioni rapide (C1): Segna come restituito e Cestino arrivano con US-26 e US-14 */}
       <div className="hidden gap-6 lg:col-span-12 lg:grid lg:grid-cols-2 xl:grid-cols-4">
         <AzioneLink href={hrefNuovaSpesa('/')} icona={Plus} titolo="Nuova spesa" sotto="premi N" />
+        {stato.tipo === 'debito' && altra && (
+          <SegnaComeSaldato
+            azione={registraRimborso}
+            saldoCentesimi={stato.ioDevo ? -stato.importoCentesimi : stato.importoCentesimi}
+            io={nucleo.io}
+            altra={altra}
+            pulsante={{
+              className: stileAzione,
+              contenuto: (
+                <ContenutoAzione
+                  icona={ArrowLeftRight}
+                  titolo="Segna come saldato"
+                  sotto={stato.ioDevo ? `Devi a ${altra.nome} ${formattaEuro(stato.importoCentesimi)}` : `${altra.nome} ti deve ${formattaEuro(stato.importoCentesimi)}`}
+                />
+              ),
+            }}
+          />
+        )}
       </div>
 
       <div className="hidden lg:col-span-7 lg:block">

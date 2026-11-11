@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { saluto, dataEstesa } from '@/lib/date';
-import { rimborsiInElenco, sottotitoloRimborso, statoSaldo, tonoCardSaldo } from './saldo';
+import {
+  fraseDopoAnnullamento,
+  notaImportoRimborso,
+  rimborsiInElenco,
+  saldoDopoAnnullamento,
+  sottotitoloRimborso,
+  statoSaldo,
+  tonoCardSaldo,
+} from './saldo';
 
 const DANIELE = { id: 'm1', nome: 'Daniele', persona: 'a' as const, sonoIo: true };
 const SIMONA = { id: 'm2', nome: 'Simona', persona: 'b' as const, sonoIo: false };
@@ -70,5 +78,32 @@ describe('intestazione della Home sul computer (D23)', () => {
 
   it('data per esteso con la maiuscola', () => {
     expect(dataEstesa('2026-11-10')).toBe('Martedì 10 novembre');
+  });
+});
+
+describe('foglio Segna come saldato (tavola 08b)', () => {
+  it('la nota sotto l’importo segue quello che si scrive', () => {
+    expect(notaImportoRimborso(2340, 2340)).toEqual({ testo: 'Il saldo tornerà a zero: siete in pari.', valido: true });
+    expect(notaImportoRimborso(1000, 2340).testo).toBe('Resteranno da saldare 13,40 €.');
+    expect(notaImportoRimborso(3000, 2340)).toEqual({ testo: 'Al massimo 23,40 €, il saldo attuale.', valido: false });
+    expect(notaImportoRimborso(0, 2340).valido).toBe(false);
+    expect(notaImportoRimborso(null, 2340).valido).toBe(false);
+  });
+});
+
+describe('conferma Annullare il rimborso? (tavola 19e)', () => {
+  const r = { da: SIMONA, a: DANIELE, importoCentesimi: 4000 };
+
+  it('il rimborso esce dal saldo come nella vista saldi', () => {
+    expect(saldoDopoAnnullamento(2340, r, DANIELE.id)).toBe(6340); // Simona mi deve di nuovo quei 40 €
+    expect(saldoDopoAnnullamento(-2340, r, SIMONA.id)).toBe(-6340);
+  });
+
+  it('la frase dice il saldo di dopo, anche quando cambia chi deve', () => {
+    const prima = statoSaldo(2340, NUCLEO);
+    expect(fraseDopoAnnullamento(prima, statoSaldo(6340, NUCLEO))).toBe('Il saldo tornerà a 63,40 €.');
+    expect(fraseDopoAnnullamento(prima, statoSaldo(-2870, NUCLEO))).toBe('Dopo, Daniele dovrà 28,70 € a Simona.');
+    expect(fraseDopoAnnullamento(prima, statoSaldo(0, NUCLEO))).toBe('Dopo sarete in pari.');
+    expect(fraseDopoAnnullamento(statoSaldo(0, NUCLEO), statoSaldo(4000, NUCLEO))).toBe('Dopo, Simona dovrà 40,00 € a Daniele.');
   });
 });

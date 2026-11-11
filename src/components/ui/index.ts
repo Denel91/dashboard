@@ -7,6 +7,8 @@ export {
   PulsanteSecondario,
   PulsanteTesto,
   PulsanteDistruttivo,
+  PulsantePillola,
+  PulsanteSuMisura,
 } from './pulsante';
 export { PulsanteNuovaSpesa, hrefNuovaSpesa } from './pulsante-nuova-spesa';
 export { BarraInBasso } from './barra-in-basso';
@@ -24,6 +26,6 @@ export { ControlloSegmentato, type OpzioneSegmento } from './controllo-segmentat
 export { Interruttore } from './interruttore';
 export { IconaCategoria, SimboloCategoria } from './icona-categoria';
 export { SceltaCategoria, type CategoriaScelta } from './scelta-categoria';
-export { CampoImporto } from './campo-importo';
+export { CampoImporto, CampoImportoFoglio } from './campo-importo';
 export { CampoData } from './campo-data';
 export { SezioneEspandibile } from './sezione-espandibile';

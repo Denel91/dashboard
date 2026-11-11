@@ -84,3 +84,29 @@ export function PulsanteDistruttivo({ variante = 'testo', className, ...props }:
       : 'min-h-11 min-w-11 rounded-capsula px-2 text-corpo text-pericolo data-hovered:opacity-80';
   return <Button {...props} className={unisci(BASE, aspetto, className)} />;
 }
+
+/**
+ * Pillola piccola dentro le righe delle liste (tavola 08a, "↶ Annulla"):
+ * si vede alta 28 px, ma l'area di tocco resta di 44 px (sezione 5).
+ */
+export function PulsantePillola({ className, children, ...props }: PropsPulsante) {
+  return (
+    <Button {...props} className={unisci(BASE, 'group -my-2 -mx-1 min-h-11 min-w-11 shrink-0 rounded-capsula', className)}>
+      {(stato) => (
+        <span className="flex h-7 items-center gap-0.5 rounded-capsula bg-accento-tenue px-2 text-nota font-medium text-accento group-data-hovered:brightness-95">
+          {typeof children === 'function' ? children(stato) : children}
+        </span>
+      )}
+    </Button>
+  );
+}
+
+/**
+ * Pulsante con un aspetto deciso altrove, per esempio i pulsanti della
+ * card del saldo e le azioni rapide della Home sul computer (tavola C1):
+ * il comportamento resta quello di React Aria, l'aspetto lo danno le
+ * classi passate (sempre e solo token).
+ */
+export function PulsanteSuMisura({ className, ...props }: Omit<ButtonProps, 'className' | 'style'> & { className: string }) {
+  return <Button {...props} className={className} />;
+}
