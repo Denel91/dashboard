@@ -112,14 +112,17 @@ select is(
   'dopo le 22 spese il saldo di Daniele è +1,43 € (calcolo a mano)'
 );
 
--- Rimborsi: Simona dà 1,00 € a Daniele; un rimborso di Daniele viene annullato
+-- Rimborsi: Simona dà 1,00 € a Daniele, poi altri 0,43 € che vengono
+-- annullati. Dal 12 novembre i soldi li dà solo chi deve (D25): un
+-- rimborso di Daniele, che deve ricevere, non si può più inserire
 insert into public.rimborsi (nucleo_id, da_membro, a_membro, importo_centesimi, data_rimborso)
 values ('99999999-0000-0000-0000-000000000000', 'b9000000-0000-0000-0000-000000000000',
-        'a9000000-0000-0000-0000-000000000000', 100, '2026-11-09'),
-       ('99999999-0000-0000-0000-000000000000', 'a9000000-0000-0000-0000-000000000000',
-        'b9000000-0000-0000-0000-000000000000', 500, '2026-11-09');
+        'a9000000-0000-0000-0000-000000000000', 100, '2026-11-09');
+insert into public.rimborsi (nucleo_id, da_membro, a_membro, importo_centesimi, data_rimborso)
+values ('99999999-0000-0000-0000-000000000000', 'b9000000-0000-0000-0000-000000000000',
+        'a9000000-0000-0000-0000-000000000000', 43, '2026-11-09');
 update public.rimborsi set data_eliminazione = now()
-where nucleo_id = '99999999-0000-0000-0000-000000000000' and importo_centesimi = 500;
+where nucleo_id = '99999999-0000-0000-0000-000000000000' and importo_centesimi = 43;
 
 -- 24–25: saldo finale, visto da Daniele e da Simona
 select is(
