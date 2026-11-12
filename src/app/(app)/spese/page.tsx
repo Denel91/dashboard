@@ -134,7 +134,7 @@ async function Contenuto({ searchParams }: Pick<PageProps<'/spese'>, 'searchPara
   const autore = dettaglio && nucleo.membri.find((m) => m.id === dettaglio.autore);
 
   return (
-    <div className="lg:grid lg:grid-cols-2 lg:items-start xl:grid-cols-[420px_minmax(0,1fr)] lg:gap-x-6 lg:gap-y-5">
+    <div className="lg:grid lg:grid-cols-2 lg:items-start xl:grid-cols-lista-dettaglio lg:gap-x-6 lg:gap-y-5">
       {/* Sotto 1024 px, con una spesa aperta l'elenco resta sotto, coperto */}
       <div className={idScelta ? 'hidden lg:col-span-2 lg:block' : 'lg:col-span-2'}>{intestazione}</div>
       <div className={idScelta ? 'hidden lg:block' : 'mt-6 lg:mt-0'}>{colonnaElenco}</div>
@@ -144,7 +144,7 @@ async function Contenuto({ searchParams }: Pick<PageProps<'/spese'>, 'searchPara
           aria-label="Modifica spesa"
           className={
             'fixed inset-0 z-50 overflow-y-auto bg-superficie ' +
-            'lg:sticky lg:inset-auto lg:top-8 lg:z-auto lg:max-h-[calc(100dvh-4rem)] lg:rounded-card lg:shadow-lg lg:ring-1 lg:ring-vetro-bordo'
+            'lg:sticky lg:inset-auto lg:top-8 lg:z-auto lg:max-h-riquadro lg:rounded-card lg:shadow-lg lg:ring-1 lg:ring-vetro-bordo'
           }
         >
           {dettaglio ? (

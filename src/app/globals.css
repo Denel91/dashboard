@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
 /* =====================================================================
-   Nucleo — design token (Fase 3, P5) · v2 · 7 novembre 2026
+   Nucleo — design token (Fase 3, P5) · v3 · 12 novembre 2026
+   (v2 del 7 novembre più i token v3: nessun valore scritto a mano)
    Riferimenti vincolanti (D18): wireframe v2.2 per struttura e testi,
    linee guida di iOS 27 (Liquid Glass) per aspetto e comportamento.
    Tema chiaro e scuro (D15, NF-12): stessi nomi, valori diversi.
@@ -192,6 +193,150 @@
   --text-importo--font-weight: 700;
 }
 
+/* ---------------------------------------------------------------------
+   Token v3 (12 novembre 2026): nei componenti niente valori scritti a
+   mano (linee guida, sezione 8). Ogni misura che prima stava tra
+   parentesi quadre nelle classi ha qui un nome; lo controlla il test
+   src/lib/valori-a-mano.test.ts. `static`: le variabili ci sono anche
+   quando le usa solo il CSS (vetro-card, macchie).
+   --------------------------------------------------------------------- */
+@theme static {
+  /* Forme */
+  --radius-voce: 1.125rem;             /* 18px: voci della barra laterale compatta (md) */
+  --radius-etichetta: 0.375rem;        /* 6px: etichette nelle righe delle spese (reso, anticipo…) */
+  --radius-icona-app: 23.4375%;        /* icona dell'app: 15/64, come il rettangolo di icon.svg */
+
+  /* Ombre: barra laterale galleggiante e card dell'ingresso (lg, md);
+     card di vetro del contenuto (D23) */
+  --shadow-galleggiante: 0 8px 32px rgb(0 0 0 / 0.08);
+  --shadow-vetro-card: 0 8px 32px rgb(0 0 0 / 0.06);
+
+  /* Sfocature: macchie dello sfondo (D23) e card di vetro */
+  --blur-macchia: 120px;
+  --blur-vetro-card: 40px;
+
+  /* Larghezze (linee guida 9.1–9.4): w-…, max-w-… */
+  --container-colonna: 42.5rem;        /* 680: una colonna da md, pagine di Altro */
+  --container-contenuto: 75rem;        /* 1200: area del contenuto da lg */
+  --container-ingresso: 27.5rem;       /* 440: card di accesso, invito, crea nucleo */
+  --container-foglio: 30rem;           /* 480: foglio che diventa finestra al centro */
+  --container-finestra: 35rem;         /* 560: Nuova spesa e Modifica spesa in finestra */
+  --container-avviso: 26.25rem;        /* 420: avvisi della pagina da md */
+  --container-lista: 26.25rem;         /* 420: lista delle spese accanto al dettaglio (xl) */
+  --container-barra-laterale: 16.25rem; /* 260: barra laterale estesa (lg) */
+  --container-modulo-largo: 30rem;     /* 480: da qui il modulo della spesa va su due colonne (@modulo-largo:) */
+
+  /* Spazi. Nome diverso da --container-barra-laterale: con lo stesso nome
+     w-barra-laterale prenderebbe lo spazio (292) invece della larghezza */
+  --spacing-accanto-barra: 18.25rem;   /* 292 = 260 + 16 + 16: contenuto e avvisi accanto alla barra galleggiante */
+
+  /* Fuori dal namespace --spacing apposta: pb-sopra-barra è una utility
+     nostra con il bordo sicuro, e un --spacing-sopra-barra la duplicherebbe
+     senza bordo sicuro */
+  --altezza-sopra-barra: 5.5rem;       /* 88 = 60 di barra in basso + 12 di margine + 16 di respiro */
+}
+
+/* Bordi sicuri dell'iPhone (tacca, isola dinamica, barra Home):
+   pt-sicuro-4 = almeno 1rem, oppure il bordo sicuro se è più grande */
+@utility pt-sicuro-* {
+  padding-top: max(--spacing(--value(number)), env(safe-area-inset-top));
+}
+@utility pb-sicuro-* {
+  padding-bottom: max(--spacing(--value(number)), env(safe-area-inset-bottom));
+}
+/* Sotto la barra in basso: lo spazio della barra più il bordo sicuro */
+@utility pb-sopra-barra {
+  padding-bottom: calc(var(--altezza-sopra-barra) + env(safe-area-inset-bottom));
+}
+@utility bottom-sopra-barra {
+  bottom: calc(var(--altezza-sopra-barra) + env(safe-area-inset-bottom));
+}
+
+/* Altezze massime di fogli, finestre e riquadro di Modifica spesa (9.4) */
+@utility max-h-foglio {
+  max-height: 92dvh;
+}
+@utility max-h-finestra {
+  max-height: 85dvh;
+}
+@utility max-h-riquadro {
+  max-height: calc(100dvh - 4rem);
+}
+@utility min-h-finestra-modulo {
+  min-height: 40rem;                   /* 640: Nuova spesa non cambia altezza aprendo "Altro" */
+}
+
+/* Griglie con nome */
+@utility grid-cols-titolo-modale {
+  grid-template-columns: 3rem 1fr 3rem; /* ✕, titolo al centro, spazio uguale a destra */
+}
+@utility grid-cols-lista-dettaglio {
+  grid-template-columns: var(--container-lista) minmax(0, 1fr); /* C2 da xl */
+}
+@utility grid-cols-saldo {
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); /* card del saldo e rimborsi da lg */
+}
+
+/* Il foglio entra con traslazione, ingrandimento e dissolvenza
+   (durata e curva dalle classi duration-… ed ease-…) */
+@utility transition-foglio {
+  transition-property: translate, scale, opacity;
+}
+
+/* Campo dell'importo largo quanto il testo, così "42,50 €" resta al
+   centro; dove field-sizing manca, una larghezza fissa in caratteri */
+@utility larghezza-importo {
+  width: 7ch;
+  min-width: 3ch;
+  max-width: 10ch;
+  field-sizing: content;
+  @supports (field-sizing: content) {
+    width: auto;
+  }
+}
+@utility larghezza-importo-foglio {
+  width: 6ch;
+  min-width: 2ch;
+  max-width: 12ch;
+  field-sizing: content;
+  @supports (field-sizing: content) {
+    width: auto;
+  }
+}
+
+/* Iniziale dentro una riga di testo, allineata alle lettere */
+@utility allinea-iniziale {
+  vertical-align: -0.2em;
+}
+
+/* Sfondo del computer (D23): tre macchie morbide dei nostri colori al 30% */
+.macchia {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(var(--blur-macchia));
+}
+.macchia-accento {
+  top: -10rem;
+  left: 18%;
+  width: 40rem;
+  height: 40rem;
+  background: color-mix(in srgb, var(--accento) 30%, transparent);
+}
+.macchia-persona-b {
+  top: 30%;
+  right: -10rem;
+  width: 37.5rem;
+  height: 37.5rem;
+  background: color-mix(in srgb, var(--persona-b) 30%, transparent);
+}
+.macchia-persona-a {
+  bottom: -12rem;
+  left: 40%;
+  width: 35rem;
+  height: 35rem;
+  background: color-mix(in srgb, var(--persona-a) 30%, transparent);
+}
+
 body {
   background: var(--sfondo);
   color: var(--testo);
@@ -245,10 +390,10 @@ body {
     border-radius: var(--radius-card);
     padding: 0.75rem 0.5rem;
     background: color-mix(in srgb, var(--superficie) 80%, transparent);
-    -webkit-backdrop-filter: blur(40px) saturate(160%);
-    backdrop-filter: blur(40px) saturate(160%);
+    -webkit-backdrop-filter: blur(var(--blur-vetro-card)) saturate(160%);
+    backdrop-filter: blur(var(--blur-vetro-card)) saturate(160%);
     border: 1px solid var(--vetro-bordo);
-    box-shadow: 0 8px 32px rgb(0 0 0 / 0.06);
+    box-shadow: var(--shadow-vetro-card);
   }
   .elenco-in-una-card .vetro-card {
     background: none;
@@ -277,10 +422,10 @@ body {
 @media (min-width: 64rem) {
   .vetro-card {
     background: color-mix(in srgb, var(--superficie) 80%, transparent);
-    -webkit-backdrop-filter: blur(40px) saturate(160%);
-    backdrop-filter: blur(40px) saturate(160%);
+    -webkit-backdrop-filter: blur(var(--blur-vetro-card)) saturate(160%);
+    backdrop-filter: blur(var(--blur-vetro-card)) saturate(160%);
     border: 1px solid var(--vetro-bordo);
-    box-shadow: 0 8px 32px rgb(0 0 0 / 0.06);
+    box-shadow: var(--shadow-vetro-card);
   }
 }
 /* Contrasto aumentato e browser senza backdrop-filter: di nuovo opache */

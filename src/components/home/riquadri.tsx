@@ -54,7 +54,7 @@ export function Confronto({ punti, mesePrima }: { punti: number; mesePrima: stri
 
 const STILE_AZIONE =
   'vetro-card flex min-h-14 w-full items-center gap-3 rounded-capsula py-2 pr-4 pl-2 text-left outline-hidden ' +
-  'hover:brightness-[0.98] active:opacity-80 data-hovered:brightness-[0.98] data-pressed:opacity-80 ' +
+  'hover:brightness-98 active:opacity-80 data-hovered:brightness-98 data-pressed:opacity-80 ' +
   'focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-accento ' +
   'data-focus-visible:outline-2 data-focus-visible:outline-solid data-focus-visible:outline-offset-2 data-focus-visible:outline-accento';
 

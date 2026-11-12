@@ -6,7 +6,7 @@ export function IntestazioneIngresso({ titolo, children }: { titolo: ReactNode; 
   return (
     <header>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/icon.svg" alt="" width={56} height={56} className="size-14 rounded-[0.9rem] shadow-lg shadow-accento/30" />
+      <img src="/icon.svg" alt="" width={56} height={56} className="size-14 rounded-icona-app shadow-lg shadow-accento/30" />
       <h1 className="mt-5 text-titolo-1 font-bold">{titolo}</h1>
       {children && <div className="mt-2 text-corpo text-testo-secondario">{children}</div>}
     </header>

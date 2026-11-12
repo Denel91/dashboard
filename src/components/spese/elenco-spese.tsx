@@ -1,4 +1,5 @@
 import { GruppoRighe, IconaCategoria, Iniziale, Riga } from '@/components/ui';
+import { COLORE_DI_RISERVA } from '@/lib/categorie';
 import { etichettaGiorno } from '@/lib/date';
 import { formattaEuro } from '@/lib/money';
 import type { Membro } from '@/lib/nucleo/corrente';
@@ -14,8 +15,6 @@ import { etichetteSpesa, type GiornoDiSpese } from '@/lib/spese/elenco';
 // dell'iniziale a destra.
 
 export type CategoriaInElenco = { nome: string; icona: string; colore: string };
-
-const GRIGIO = '#8b8b91';
 
 export function ElencoSpese({
   giorni,
@@ -62,7 +61,7 @@ export function ElencoSpese({
                     </span>
                   )}
                   {etichette.map((e) => (
-                    <span key={e} className="shrink-0 rounded-[0.375rem] bg-superficie-2 px-1.5 py-px text-didascalia text-testo-secondario">
+                    <span key={e} className="shrink-0 rounded-etichetta bg-superficie-2 px-1.5 py-px text-didascalia text-testo-secondario">
                       {e}
                     </span>
                   ))}
@@ -71,7 +70,7 @@ export function ElencoSpese({
             return (
               <Riga
                 key={s.id}
-                icona={<IconaCategoria icona={categoria?.icona ?? 'tag'} colore={categoria?.colore ?? GRIGIO} />}
+                icona={<IconaCategoria icona={categoria?.icona ?? 'tag'} colore={categoria?.colore ?? COLORE_DI_RISERVA} />}
                 titolo={titolo}
                 sottotitolo={sotto}
                 href={hrefSpesa?.(s.id)}

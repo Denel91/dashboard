@@ -44,7 +44,7 @@ export function CampoImporto({
           className={
             // Largo quanto il testo, così "42,50 €" resta al centro; dove
             // field-sizing manca, una larghezza fissa
-            'importo w-[7ch] max-w-[10ch] min-w-[3ch] [field-sizing:content] supports-[field-sizing:content]:w-auto ' +
+            'importo larghezza-importo ' +
             'bg-transparent text-right text-importo text-testo caret-accento outline-hidden ' +
             'placeholder:text-testo-secondario/50 data-invalid:text-pericolo'
           }
@@ -100,7 +100,7 @@ export function CampoImportoFoglio({
           placeholder="0,00"
           size={6}
           className={
-            'importo w-[6ch] max-w-[12ch] min-w-[2ch] [field-sizing:content] supports-[field-sizing:content]:w-auto ' +
+            'importo larghezza-importo-foglio ' +
             'bg-transparent text-intestazione text-testo caret-accento outline-hidden placeholder:text-testo-secondario/60'
           }
         />

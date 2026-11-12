@@ -89,13 +89,13 @@ describe('Foglio da 768 px', () => {
       </Foglio>,
     );
     const finestra = await screen.findByRole('dialog', { name: 'Segna come saldato' });
-    expect(finestra.closest('.md\\:w-\\[480px\\]')).toBeTruthy();
+    expect(finestra.closest('.md\\:w-foglio')).toBeTruthy();
     rerender(
       <Foglio titolo="Nuova spesa" isOpen onOpenChange={() => {}} larghezza="modulo">
         <p>contenuto</p>
       </Foglio>,
     );
     const modulo = await screen.findByRole('dialog', { name: 'Nuova spesa' });
-    expect(modulo.closest('.md\\:w-\\[560px\\]')).toBeTruthy();
+    expect(modulo.closest('.md\\:w-finestra')).toBeTruthy();
   });
 });

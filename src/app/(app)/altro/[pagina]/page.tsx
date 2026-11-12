@@ -25,7 +25,7 @@ export default async function PaginaInArrivo({ params }: PageProps<'/altro/[pagi
   if (!pagina) notFound();
 
   return (
-    <main className="flex w-full max-w-[680px] flex-col gap-6 py-2">
+    <main className="flex w-full max-w-colonna flex-col gap-6 py-2">
       <Link
         href="/altro"
         className={

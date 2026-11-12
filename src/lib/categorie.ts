@@ -20,6 +20,9 @@ export const FAMIGLIE = {
 
 export type Famiglia = keyof typeof FAMIGLIE;
 
+/** Il grigio di Altro: anche il colore predefinito del database e quello di una categoria che non c'è più. */
+export const COLORE_DI_RISERVA = FAMIGLIE.altro.colore;
+
 /** Colori ammessi, nell'ordine del selettore della tavola 13b. */
 export const COLORI_CATEGORIA = Object.values(FAMIGLIE).map((f) => f.colore);
 
