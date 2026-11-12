@@ -51,10 +51,10 @@ export function BarraLaterale({ nomeNucleo, contatori = {}, profilo }: Props) {
       aria-label="Navigazione principale"
       className={
         'vetro fixed inset-y-0 left-0 z-40 hidden w-22 flex-col items-center gap-1 border-y-0 border-l-0 px-2 ' +
-        'pt-[max(1rem,env(safe-area-inset-top))] pb-4 md:flex ' +
+        'pt-sicuro-4 pb-4 md:flex ' +
         // lg: estesa e galleggiante
-        'lg:inset-y-4 lg:left-4 lg:w-[260px] lg:items-stretch lg:rounded-card lg:border-l lg:border-y lg:p-3 ' +
-        'lg:shadow-[0_8px_32px_rgb(0_0_0/0.08)]'
+        'lg:inset-y-4 lg:left-4 lg:w-barra-laterale lg:items-stretch lg:rounded-card lg:border-l lg:border-y lg:p-3 ' +
+        'lg:shadow-galleggiante'
       }
     >
       {/* Intestazione: solo nella barra estesa */}
@@ -120,7 +120,7 @@ function VoceBarra({ voce, attiva, contatore }: { voce: Voce; attiva: boolean; c
       aria-current={attiva ? 'page' : undefined}
       className={
         // md: icona con l'etichetta sotto; lg: icona ed etichetta in riga
-        'flex min-h-13 flex-col items-center justify-center gap-0.5 rounded-[18px] px-1 text-didascalia-2 ' +
+        'flex min-h-13 flex-col items-center justify-center gap-0.5 rounded-voce px-1 text-didascalia-2 ' +
         'lg:min-h-11 lg:flex-row lg:justify-start lg:gap-3 lg:rounded-capsula lg:px-3 lg:text-sottotitolo ' +
         (attiva ? 'bg-accento-tenue font-semibold text-accento' : 'text-testo hover:bg-superficie-2/60') +
         ' ' +
@@ -138,13 +138,8 @@ function VoceBarra({ voce, attiva, contatore }: { voce: Voce; attiva: boolean; c
   );
 }
 
+/** L'icona dell'app (src/app/icon.svg), la stessa della scheda del browser e dell'accesso. */
 function IconaApp() {
-  return (
-    <span aria-hidden="true" className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-accento">
-      <span className="relative block size-5">
-        <span className="absolute top-0 left-0 size-3 rounded-full border-[2.5px] border-su-accento" />
-        <span className="absolute right-0 bottom-0 size-2.5 rounded-full bg-su-accento" />
-      </span>
-    </span>
-  );
+  // eslint-disable-next-line @next/next/no-img-element -- SVG di 36 px, niente ottimizzazione da fare
+  return <img src="/icon.svg" alt="" width={36} height={36} className="size-9 shrink-0 rounded-icona-app" />;
 }

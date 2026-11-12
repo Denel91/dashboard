@@ -16,7 +16,7 @@ export const metadata: Metadata = { title: 'Nuova spesa · Nucleo' };
 // pagine interne, destinazioneSicura); senza, si torna alla Home.
 export default function PaginaNuovaSpesa({ searchParams }: PageProps<'/spese/nuova'>) {
   return (
-    <Suspense fallback={<div className="min-h-dvh md:min-h-[640px]" />}>
+    <Suspense fallback={<div className="min-h-dvh md:min-h-finestra-modulo" />}>
       <Contenuto searchParams={searchParams} />
     </Suspense>
   );

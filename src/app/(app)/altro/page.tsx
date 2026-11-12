@@ -15,7 +15,7 @@ export const metadata: Metadata = { title: 'Altro · Nucleo' };
 // US-25/26).
 export default function PaginaAltro() {
   return (
-    <main className="flex w-full max-w-[680px] flex-col gap-6 py-2">
+    <main className="flex w-full max-w-colonna flex-col gap-6 py-2">
       <Suspense fallback={<Intestazione />}>
         <IntestazioneDelNucleo />
       </Suspense>

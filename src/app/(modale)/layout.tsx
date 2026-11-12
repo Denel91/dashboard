@@ -12,7 +12,7 @@ export default function LayoutModale({ children }: LayoutProps<'/'>) {
         <SfondoSfumato />
       </div>
       <main className="min-h-dvh bg-superficie md:flex md:items-center md:justify-center md:bg-velo md:p-8">
-        <div className="md:max-h-[85dvh] md:w-[560px] md:overflow-y-auto md:rounded-card md:bg-superficie md:shadow-2xl">
+        <div className="md:max-h-finestra md:w-finestra md:overflow-y-auto md:rounded-card md:bg-superficie md:shadow-2xl">
           {children}
         </div>
       </main>

@@ -46,7 +46,7 @@ async function Contenuto() {
   const saldoMio = stato.tipo === 'debito' ? (stato.ioDevo ? -stato.importoCentesimi : stato.importoCentesimi) : 0;
 
   return (
-    <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start lg:gap-x-8">
+    <div className="flex flex-col gap-6 lg:grid lg:grid-cols-saldo lg:items-start lg:gap-x-8">
       <header className="flex flex-col gap-1 lg:col-span-2">
         <h1 className="text-titolo-grande font-bold">Saldo</h1>
         <p className="text-sottotitolo text-testo-secondario">{nucleo.nome}</p>

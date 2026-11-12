@@ -10,11 +10,11 @@ export const metadata: Metadata = {
 // un solo pulsante nella metà bassa dello schermo e la nota sotto.
 export default function PaginaAccesso() {
   return (
-    <main className="flex min-h-dvh flex-col bg-linear-to-b from-accento-tenue/60 via-sfondo to-persona-b-tenue/50 px-4 pt-[max(3rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+    <main className="flex min-h-dvh flex-col bg-linear-to-b from-accento-tenue/60 via-sfondo to-persona-b-tenue/50 px-4 pt-sicuro-12 pb-sicuro-6">
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center">
         {/* L'icona è decorativa: il nome dell'app è subito sotto */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/icon.svg" alt="" width={72} height={72} className="size-18 rounded-[1.1rem] shadow-lg shadow-accento/30" />
+        <img src="/icon.svg" alt="" width={72} height={72} className="size-18 rounded-icona-app shadow-lg shadow-accento/30" />
         <h1 className="mt-6 text-titolo-grande font-bold">Nucleo</h1>
         <p className="mt-2 text-corpo text-testo-secondario">
           Le spese di casa, divise in due.

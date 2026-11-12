@@ -31,7 +31,7 @@ export function BarraInBasso() {
   const pathname = usePathname();
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:hidden">
+    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-4 pb-sicuro-3 md:hidden">
       <div className="pointer-events-auto mx-auto flex w-full max-w-md items-center gap-3">
         <nav aria-label="Navigazione principale" className="vetro flex-1 rounded-capsula p-1 shadow-lg shadow-testo/10">
           <ul className="flex">

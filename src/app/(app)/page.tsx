@@ -20,6 +20,7 @@ import {
   serieDelMese,
   variazione,
 } from '@/lib/home';
+import { COLORE_DI_RISERVA } from '@/lib/categorie';
 import { formattaEuro } from '@/lib/money';
 import { leggiNucleoCorrente } from '@/lib/nucleo/corrente';
 import { leggiStatoSaldo } from '@/lib/saldo/leggi';
@@ -277,7 +278,7 @@ async function Contenuto() {
                     (i > 0 ? 'border-t border-separatore' : '')
                   }
                 >
-                  <IconaCategoria icona={categoria?.icona ?? 'tag'} colore={categoria?.colore ?? '#8b8b91'} />
+                  <IconaCategoria icona={categoria?.icona ?? 'tag'} colore={categoria?.colore ?? COLORE_DI_RISERVA} />
                   <span className="flex min-w-0 flex-1 flex-col">
                     <span className="truncate text-corpo">{s.descrizione ?? categoria?.nome ?? 'Senza categoria'}</span>
                     <span className="truncate text-nota text-testo-secondario">

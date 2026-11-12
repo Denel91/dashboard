@@ -19,7 +19,7 @@ export const metadata: Metadata = { title: 'Impostazioni · Nucleo' };
 // collegato (la tabella membri non la salva).
 export default function PaginaImpostazioni() {
   return (
-    <main className="flex w-full max-w-[680px] flex-col gap-6 py-2">
+    <main className="flex w-full max-w-colonna flex-col gap-6 py-2">
       {/* Titolo al centro e ‹ a sinistra, come nella tavola 14 */}
       <header className="relative flex min-h-11 items-center justify-center">
         <Link

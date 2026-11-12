@@ -32,8 +32,8 @@ export default function LayoutApp({ children }: LayoutProps<'/'>) {
       <div className={`flex-1 ${SPAZIO_BARRA_LATERALE}`}>
         <div
           className={
-            'mx-auto w-full max-w-[680px] px-4 pt-[max(1.5rem,env(safe-area-inset-top))] md:px-6 ' +
-            `lg:max-w-[1200px] lg:px-8 lg:pt-8 ${SPAZIO_BARRA_IN_BASSO}`
+            'mx-auto w-full max-w-colonna px-4 pt-sicuro-6 md:px-6 ' +
+            `lg:max-w-contenuto lg:px-8 lg:pt-8 ${SPAZIO_BARRA_IN_BASSO}`
           }
         >
           {children}

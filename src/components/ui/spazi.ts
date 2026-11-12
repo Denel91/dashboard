@@ -8,7 +8,7 @@
  * l'ultimo contenuto non finisca sotto il vetro: 60 px di barra + 12 px di
  * margine + 16 px di respiro, più il bordo sicuro dell'iPhone.
  */
-export const SPAZIO_BARRA_IN_BASSO = 'pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-8';
+export const SPAZIO_BARRA_IN_BASSO = 'pb-sopra-barra md:pb-8';
 
 /** Spazio a sinistra per la barra laterale: 88 px compatta (md), 260 + 16 + 16 px galleggiante (lg). */
-export const SPAZIO_BARRA_LATERALE = 'md:pl-22 lg:pl-[292px]';
+export const SPAZIO_BARRA_LATERALE = 'md:pl-22 lg:pl-accanto-barra';

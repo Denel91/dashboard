@@ -172,7 +172,7 @@ function ModuloSpesaUnGiro({
       {/* Titolo al centro e ✕ a sinistra (linee guida sezione 3, schermate modali) */}
       <header
         className={
-          'sticky top-0 z-10 grid grid-cols-[3rem_1fr_3rem] items-center bg-sfondo px-2 pt-[env(safe-area-inset-top)] md:static md:pt-0 ' +
+          'sticky top-0 z-10 grid grid-cols-titolo-modale items-center bg-sfondo px-2 pt-sicuro-0 md:static md:pt-0 ' +
           'largo:border-b largo:border-separatore largo:bg-superficie ' +
           // Nel riquadro accanto all'elenco (C2) niente titolo né ✕
           (riquadro ? 'lg:hidden' : '')
@@ -203,7 +203,7 @@ function ModuloSpesaUnGiro({
           validationBehavior="aria"
         />
 
-        <div className="flex flex-col gap-4 largo:grid largo:items-end largo:gap-3 @min-[30rem]:largo:grid-cols-2">
+        <div className="flex flex-col gap-4 largo:grid largo:items-end largo:gap-3 @modulo-largo:largo:grid-cols-2">
         {altra ? (
           <ControlloSegmentato
             etichetta="Chi ha pagato"
@@ -408,7 +408,7 @@ function TestoConflitto({
   return (
     <p className="text-corpo text-testo">
       {chi && !chi.sonoIo && (
-        <span className="mr-1.5 inline-flex align-[-0.2em]">
+        <span className="mr-1.5 inline-flex allinea-iniziale">
           <Iniziale nome={chi.nome} persona={chi.persona} dimensione="piccola" decorativa />
         </span>
       )}

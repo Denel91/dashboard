@@ -38,7 +38,7 @@ type PropsFoglio = {
   icona?: ReactNode;
 };
 
-const LARGHEZZA = { foglio: 'md:w-[480px]', modulo: 'md:w-[560px]' } as const;
+const LARGHEZZA = { foglio: 'md:w-foglio', modulo: 'md:w-finestra' } as const;
 
 /** Da 768 px il foglio è una finestra al centro e non si trascina. */
 const QUERY_FINESTRA = '(min-width: 48rem)';
@@ -56,7 +56,7 @@ export function Foglio({ titolo, children, isOpen, onOpenChange, isDismissable =
     >
       <Modal
         className={
-          `w-full outline-hidden transition-[translate,scale,opacity] duration-350 ease-out ${LARGHEZZA[larghezza]} ` +
+          `w-full outline-hidden transition-foglio duration-350 ease-out ${LARGHEZZA[larghezza]} ` +
           'data-entering:translate-y-full data-exiting:translate-y-full ' +
           // Finestra al centro: dissolvenza e leggero ingrandimento in circa 200 ms (sezione 9.4)
           'md:duration-200 md:data-entering:translate-y-0 md:data-exiting:translate-y-0 ' +
@@ -117,7 +117,7 @@ function CorpoFoglio({
     <div
       style={spostamento ? { transform: `translateY(${spostamento}px)` } : undefined}
       className={
-        'flex max-h-[92dvh] flex-col rounded-t-foglio bg-superficie shadow-2xl md:max-h-[85dvh] md:rounded-card ' +
+        'flex max-h-foglio flex-col rounded-t-foglio bg-superficie shadow-2xl md:max-h-finestra md:rounded-card ' +
         (trascinando ? '' : 'transition-transform duration-200 ease-out')
       }
     >
@@ -138,7 +138,7 @@ function CorpoFoglio({
           {titolo}
         </Heading>
       </div>
-      <div className="flex-1 overflow-y-auto overscroll-contain px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] md:px-6 md:pb-6">
+      <div className="flex-1 overflow-y-auto overscroll-contain px-5 pb-sicuro-5 md:px-6 md:pb-6">
         {children}
       </div>
     </div>
