@@ -336,6 +336,9 @@ isOneToOne: false
 "ping":
 { Args: never; Returns: boolean
                            },
+"ultimo_pareggio":
+{ Args: { "p_nucleo_id": string }; Returns: { "data_pareggio": string | null,"spese_altra": number,"spese_mie": number }[]
+                           },
 "registra_rimborso":
 { Args: { "p_data_rimborso": string,"p_importo_centesimi": number,"p_nota"?: string,"p_nucleo_id": string,"p_saldo_atteso_centesimi": number }; Returns: string
                            }

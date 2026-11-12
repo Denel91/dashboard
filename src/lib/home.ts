@@ -1,7 +1,8 @@
 import type { Mese } from '@/lib/date';
 
 // Numeri della Home sul computer (tavola C1 v2, D23): l'anello "pagato da
-// te" e le spese dall'ultimo pareggio nella card del saldo, i riquadri
+// te" nella card del saldo (l'ultimo pareggio e le spese da allora li
+// calcola il database, ultimo_pareggio(), D26), i riquadri
 // numerici con il mini grafico e il confronto con il mese prima.
 // Sono riepiloghi del mese, non conti tra le persone: il saldo resta quello
 // della vista `saldi` (Fase 3, sezione 5, regola 5). Anticipi per terzi
@@ -28,13 +29,6 @@ export function quotePagate(spese: SpesaDelMese[], ioId: string) {
   // Con un totale nullo o negativo (solo resi) la percentuale non ha senso
   const percentuale = totale > 0 ? Math.min(100, Math.max(0, Math.round((mie / totale) * 100))) : null;
   return { mie, altra, totale, percentuale };
-}
-
-/** Quante spese ha registrato ciascuno (dall'ultimo pareggio): "12 spese tue e 9 di Simona". */
-export function contaPerPersona(spese: { pagata_da: string }[], ioId: string) {
-  let mie = 0;
-  for (const s of spese) if (s.pagata_da === ioId) mie++;
-  return { mie, altra: spese.length - mie };
 }
 
 /** Giorno del mese di una data AAAA-MM-GG. */
