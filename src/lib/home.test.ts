@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import {
-  contaPerPersona,
   frasePareggio,
   giornoCorto,
   giornoEMese,
@@ -32,11 +31,10 @@ describe('quotePagate (anello della tavola C1)', () => {
   });
 });
 
-describe('contaPerPersona e frasePareggio', () => {
-  it('conta le spese di ciascuno', () => {
-    const c = contaPerPersona([{ pagata_da: IO }, { pagata_da: LEI }, { pagata_da: IO }], IO);
-    expect(c).toEqual({ mie: 2, altra: 1 });
-    expect(frasePareggio(c, 'Simona')).toBe('2 spese tue e 1 di Simona');
+// Il conteggio lo fa il database (ultimo_pareggio(), test pgTAP 12): qui solo la frase
+describe('frasePareggio', () => {
+  it('spese di ciascuno', () => {
+    expect(frasePareggio({ mie: 2, altra: 1 }, 'Simona')).toBe('2 spese tue e 1 di Simona');
   });
   it('singolare e nessuna', () => {
     expect(frasePareggio({ mie: 1, altra: 0 }, 'Simona')).toBe('1 spesa tua e nessuna di Simona');

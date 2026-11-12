@@ -11,7 +11,6 @@ import { SegnaComeSaldato } from '@/components/saldo/segna-come-saldato';
 import { IconaCategoria, Iniziale, hrefNuovaSpesa } from '@/components/ui';
 import { dataEstesa, limitiMese, meseVicino, nomeMese, oggiIso, saluto, type Mese } from '@/lib/date';
 import {
-  contaPerPersona,
   frasePareggio,
   giornoCorto,
   giornoEMese,
@@ -93,45 +92,20 @@ async function Contenuto() {
       .order('data_creazione', { ascending: false })
       .limit(4),
     supabase.from('categorie').select('id, nome, icona, colore').eq('nucleo_id', nucleo.id),
-    // L'ultimo rimborso non annullato: "Dall'ultimo pareggio del 31 ottobre"
-    supabase
-      .from('rimborsi')
-      .select('data_rimborso, data_creazione')
-      .eq('nucleo_id', nucleo.id)
-      .is('data_eliminazione', null)
-      .order('data_creazione', { ascending: false })
-      .limit(1)
-      .maybeSingle(),
+    // L'ultimo pareggio e le spese da allora, calcolati dal database (D26)
+    supabase.rpc('ultimo_pareggio', { p_nucleo_id: nucleo.id }).single(),
   ]);
   for (const [cosa, r] of [
     ['spese', spese],
     ['spese del mese prima', spesePrima],
     ['ultime spese', ultime],
     ['categorie', categorie],
-    ['rimborsi', pareggio],
+    ['ultimo pareggio', pareggio],
   ] as const) {
     if (r.error) {
       console.error(`[home] lettura di ${cosa} non riuscita`, r.error.code, r.error.message);
       throw new Error(`Lettura di ${cosa} non riuscita`);
     }
-  }
-
-  // Spese dopo l'ultimo pareggio (anticipi esclusi: non toccano il saldo)
-  let dalPareggio = supabase
-    .from('spese')
-    .select('pagata_da')
-    .eq('nucleo_id', nucleo.id)
-    .is('data_eliminazione', null)
-    .is('terza_persona', null);
-  // Dopo il giorno del rimborso; nello stesso giorno, solo quelle registrate dopo
-  if (pareggio.data) {
-    const { data_rimborso: giornoPareggio, data_creazione: istante } = pareggio.data;
-    dalPareggio = dalPareggio.or(`data_spesa.gt.${giornoPareggio},and(data_spesa.eq.${giornoPareggio},data_creazione.gt."${istante}")`);
-  }
-  const speseDalPareggio = await dalPareggio;
-  if (speseDalPareggio.error) {
-    console.error('[home] lettura delle spese dal pareggio non riuscita', speseDalPareggio.error.code, speseDalPareggio.error.message);
-    throw new Error('Lettura delle spese dal pareggio non riuscita');
   }
 
   const delMese = spese.data ?? [];
@@ -146,9 +120,10 @@ async function Contenuto() {
   const serie = serieDelMese(delMese, giorno);
   const media = mediaAlGiorno(totaleCentesimi, giorno);
   const oggiNumero = delMese.filter((s) => s.data_spesa === oggi && s.terza_persona === null).length;
-  const conteggio = contaPerPersona(speseDalPareggio.data ?? [], nucleo.io.id);
+  const conteggio = { mie: pareggio.data?.spese_mie ?? 0, altra: pareggio.data?.spese_altra ?? 0 };
+  const giornoPareggio = pareggio.data?.data_pareggio ?? null;
   const frase = altra
-    ? `${pareggio.data ? `Dall’ultimo pareggio del ${giornoEMese(pareggio.data.data_rimborso, oggi)}` : 'Da quando avete iniziato'}: ${frasePareggio(conteggio, altra.nome)}.`
+    ? `${giornoPareggio ? `Dall’ultimo pareggio del ${giornoEMese(giornoPareggio, oggi)}` : 'Da quando avete iniziato'}: ${frasePareggio(conteggio, altra.nome)}.`
     : null;
   const perCategoria = new Map((categorie.data ?? []).map((c) => [c.id, c]));
   const perMembro = new Map(nucleo.membri.map((m) => [m.id, m]));
